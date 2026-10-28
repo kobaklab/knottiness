@@ -1,24 +1,23 @@
-# Knottiness
+# Tait's Knottiness
 
 ![Tenfold Knottiness: the header and the first two rows of the poster](docs/cover.png)
 
 Faithful vector reconstructions of P. G. Tait's knot tables as posters: every knot follows Tait's
 original drawing closely but is rendered with proper over/under crossings, together with Tait's
-annotations. Several errors in the annotations of the original tenfold plates were corrected; they are listed in
-[`tenfold/README.md`](tenfold/README.md#errors-and-inconsistencies-in-the-1885-publications).
+annotations. Several errors in the annotations of the original tenfold plates were corrected. The layout of the *Seven Orders* plate was slightly adjusted to better match the *Tenfold* plates.
 
 | Poster | Directory |
 |---|---|
-| **Tenfold Knottiness**: Plates LXXX and LXXXI of *On Knots. Part III*, Trans. Roy. Soc. Edinburgh 32 (1885); 364 forms of the 123 alternating ten-crossing knots | [`tenfold/`](tenfold/README.md) |
-| **The First Seven Orders of Knottiness**: Plate XLIV of *On Knots. Part II*, Trans. Roy. Soc. Edinburgh 32 (1884); 144 forms of the alternating knots of 3 to 9 crossings | [`seven-orders/`](seven-orders/README.md) |
+| **The First Seven Orders of Knottiness**: Plate XLIV of *On Knots. Part II*, Trans. Roy. Soc. Edinburgh 32 (1884); 144 forms of the alternating knots of 3 to 9 crossings | [`seven-orders/`](seven-orders/) |
+| **Tenfold Knottiness**: Plates LXXX and LXXXI of *On Knots. Part III*, Trans. Roy. Soc. Edinburgh 32 (1885); 364 forms of the 123 alternating ten-crossing knots | [`tenfold/`](tenfold/) |
 
-The entire code in this repository was written by Claude Opus 5.5 and Claude Sonnet 5.5 under extensive supervision and guidance by Dmitry Kobak.
+The entire code in this repository was written by Claude Opus 5.5 and Sonnet 5.5 under extensive supervision and guidance by Dmitry Kobak.
 
 ![The First Seven Orders of Knottiness (left) and Tenfold Knottiness (right)](docs/posters.png)
 
-*The First Seven Orders of Knottiness (one A3 page) and Tenfold Knottiness, shown here as the combined A2 sheet. Tenfold Knottiness is available both combined on one sheet and as two separate A3 pages, one per plate.*
+Tenfold Knottiness is shown here as the combined landscape poster. It is also available as two separate portrait pages, one per original plate.
 
-## Layout
+## Folder structure
 
 ```
 tenfold/          one directory per poster, each with
@@ -59,7 +58,7 @@ on macOS `brew install cairo`.
 
 To add a dependency: `uv add <package>` (updates `pyproject.toml` and `uv.lock`; commit both).
 
-## Order of work
+## Reproducibility
 
 The posters share code and fonts, and seven-orders also uses one data product of tenfold: the traced
 annotation glyphs (`tenfold/traced/glyphs.json`), in which both posters set their labels. To

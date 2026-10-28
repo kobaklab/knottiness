@@ -31,7 +31,7 @@ sources/ (scans)                 data/census_p503.txt (Tait's list, transcribed)
       │                                   ▼
       │                          data/census.csv (364 forms: type, form, code, plate, …)
       ▼                                   │
-segment plate into knots ────────────────┤  census numbers by reading order
+segment plate into knots ─────────────────┤  census numbers by reading order
       │                                   │
 per knot, per source:                     │
   ink mask → skeleton → graph             │
