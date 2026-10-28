@@ -4,12 +4,12 @@
 
 Faithful vector reconstructions of P. G. Tait's knot tables as posters: every knot follows Tait's
 original drawing closely but is rendered with proper over/under crossings, together with Tait's
-annotations. Several errors in the annotations of the original tenfold plates were corrected. The layout of the *Seven Orders* plate was slightly adjusted to better match the *Tenfold* plates.
+annotations. Several errors in the annotations of the original *Tenfold* plates were corrected. The layout of the *Seven Orders* plate was slightly adjusted to better match the *Tenfold* plates.
 
 | Poster | Directory | PDF |
 |---|---|---|
 | **The First Seven Orders of Knottiness**: Plate XLIV of *On Knots. Part II*, Trans. Roy. Soc. Edinburgh 32 (1884); 144 forms of the alternating knots of 3 to 9 crossings | [`seven-orders/`](seven-orders/) | [PDF](seven-orders/output/seven_orders_knottiness.pdf)
-| **Tenfold Knottiness**: Plates LXXX and LXXXI of *On Knots. Part III*, Trans. Roy. Soc. Edinburgh 32 (1885); 364 forms of the 123 alternating ten-crossing knots | [`tenfold/`](tenfold/) | [PDF](tenfold/output/tenfold_knottiness.pdf), [page 1](tenfold/output/tenfold_knottiness_page1.pdf), [page 2](tenfold/output/tenfold_knottiness_page2.pdf) |
+| **Tenfold Knottiness**: Plates LXXX and LXXXI of *On Knots. Part III*, Trans. Roy. Soc. Edinburgh 32 (1885); 364 forms of the 123 alternating ten-crossing knots | [`tenfold/`](tenfold/) | [PDF](tenfold/output/tenfold_knottiness.pdf)<br>pages [1](tenfold/output/tenfold_knottiness_page1.pdf), [2](tenfold/output/tenfold_knottiness_page2.pdf) |
 
 The entire code in this repository was written by Claude Opus 5.5 and Sonnet 5.5 under extensive supervision and guidance by Dmitry Kobak.
 
