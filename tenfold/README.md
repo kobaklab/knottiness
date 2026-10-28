@@ -31,7 +31,7 @@ sources/ (scans)                 data/census_p503.txt (Tait's list, transcribed)
       │                                   ▼
       │                          data/census.csv (364 forms: type, form, code, plate, …)
       ▼                                   │
-segment plate into knots ─────────────────┤  census numbers by reading order
+segment plate into knots ────────────────┤  census numbers by reading order
       │                                   │
 per knot, per source:                     │
   ink mask → skeleton → graph             │
@@ -266,7 +266,7 @@ the alternation of each knot starts at the first crossing passage of its stored 
 "Vol. XXXII, Pl. LXXX." (right). Footer: "P. G. Tait del." (far left), the project's address,
 `github.com/kobaklab/knottiness`, centred below the footer, half-way between the last credit line and the
 page's edge, at 30 % opacity (`URL` in `build_poster.py`), and two
-credit lines on the right: "F. Huth Lithʳ Edinʳ MDCCCLXXXV" over "D. Kobak Restʳ Gent MMXXVI"
+credit lines on the right: "F. Huth Lithʳ Edinʳ MDCCCLXXXV" over "D. Kobak Restʳ Ghent MMXXVI"
 (`CREDIT`). The fonts are free ones close to the plates' lettering, compared on Plate LXXX's header:
 the spaced title capitals in Barlow Semi Condensed Medium (spaced by their ink: 0.7 capital heights
 between letters, 2.1 between words, as measured), the side texts and credits in Roboto Serif at

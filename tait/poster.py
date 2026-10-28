@@ -170,6 +170,14 @@ class Label:
         g = self.g if glyphs is None else glyphs
         self.pieces.append((t, self.adv, -rise, size, style, offset, g))
         self.adv += width(t, size, style, g, offset); return self
+    def raised(self, t, size, style, rise, stop=None):
+        """a raised ending of an abbreviation (Edin^r, Amphich^l), and with stop=(size, style) the abbreviation's full stop on the
+        baseline under it, as on the plates (the stop does not advance the label)"""
+        x0 = self.adv; self.add(t, size, style, rise=rise)
+        if stop:
+            sx0, _, sx1, _ = ink_box(t, size, style, self.g, 0.0); px0, _, px1, _ = ink_box('.', stop[0], stop[1], self.g, 0.0)
+            self.pieces.append(('.', x0 + (sx0 + sx1) / 2 - (px0 + px1) / 2, 0.0, stop[0], stop[1], 0.0, self.g))
+        return self
     def space(self, w):
         """advance by w (mm)"""
         self.adv += w; return self

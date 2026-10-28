@@ -81,7 +81,7 @@ URL, URL_SCALE, URL_OPACITY = 'github.com/kobaklab/knottiness', 1.0, 0.3
 # Two lines, right-aligned: the first on the footer baseline (level with Tait's credit on the left plate),
 # the second below it, in the bottom margin.
 CREDIT = [[('F. Huth Lith', False), ('r', True), (' Edin', False), ('r', True), (' MDCCCLXXXV', False)],
-          [('D. Kobak Rest', False), ('r', True), (' Gent MMXXVI', False)]]
+          [('D. Kobak Rest', False), ('r', True), (' Ghent MMXXVI', False)]]
 CREDIT_LEADING = 2.1         # baseline-to-baseline distance of the credit lines, in capital heights
 ROWS, COLS = 14, 13
 tp.use_glyphs(TRACED_DIR / 'glyphs.json')
@@ -133,7 +133,7 @@ for pi, (plate, forms) in enumerate(plates.items()):
     group_start = len(out); out.append(f'<g id="plate-{plate}">')
     # ---- header and footer
     hs = HEADER_SIZE * fs; yh = MARGIN_TOP + 0.5 * HEADER
-    out.append(Label().add('Trans. Roy. Soc. Edin', hs).add('r', SUP_SIZE * hs, 'sup', rise=SUP_RISE * hs).svg(x_plate, yh))
+    out.append(Label().add('Trans. Roy. Soc. Edin', hs).raised('r', SUP_SIZE * hs, 'sup', SUP_RISE * hs, stop=(hs, 'normal')).svg(x_plate, yh))
     title = Label().add('TENFOLD KNOTTINESS.', TITLE_SCALE * hs, 'title')
     out.append(title.svg(x_plate + plate_w / 2 - title.adv / 2, yh))
     vol = Label().add(f'Vol. XXXII, Pl. {plate}.', hs); out.append(vol.svg(x_plate + plate_w - vol.adv, yh))
@@ -231,7 +231,8 @@ def footer(x0, x1):
     for i, line in enumerate(CREDIT):
         cred = Label()
         for t, sup in line:
-            cred.add(t, SUP_SIZE * ft if sup else ft, 'sup' if sup else 'normal', rise=SUP_RISE * ft if sup else 0)
+            if sup: cred.raised(t, SUP_SIZE * ft, 'sup', SUP_RISE * ft, stop=(ft, 'normal'))
+            else: cred.add(t, ft, 'normal')
         put(cred, x1 - cred.adv, yf + i * CREDIT_LEADING * CAP_EM * ft)
     return items
 plate_x = [(c - plate_w / 2, c + plate_w / 2) for c in plate_centres]

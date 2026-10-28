@@ -68,7 +68,7 @@ URL, URL_SCALE, URL_OPACITY = 'github.com/kobaklab/knottiness', 1.0, 0.3
 # right-hand credit, as on the tenfold poster. The plate prints no year (only 'F. Huth, Lith' Edin''); MDCCCLXXXIV
 # is that of the paper (Trans. RSE 32, Part II, read on 2 June 1884).
 CREDIT = [[('F. Huth Lith', False), ('r', True), (' Edin', False), ('r', True), (' MDCCCLXXXIV', False)],
-          [('D. Kobak Rest', False), ('r', True), (' Gent MMXXVI', False)]]
+          [('D. Kobak Rest', False), ('r', True), (' Ghent MMXXVI', False)]]
 CREDIT_LEADING = 2.1
 
 # gaps between the rows and the header / footer bands, as on the tenfold poster: its first row's labels
@@ -79,7 +79,7 @@ GAP_TOP, GAP_BOTTOM = 1.19, 0.03
 # single neighbours: (row, column) -> extra gap after that figure, in label sizes. 9 Ip | 9 Ir: their
 # headers XXXVIII and XXXIX Unique would nearly touch; with 1.4 they are 1.56 label sizes apart, like XXXIX and XL.
 LAST_ROW_STRETCH = 1.0
-EXTRA_GAP = {(12, 6): 1.4}
+EXTRA_GAP = {(4, 6): 0.8, (12, 6): 1.4}
 
 # ---------------------------------------------------------------- plate text, relative to the knot height
 LABEL_SIZE = 0.144            # figure labels: capital height 0.105 knot heights, as measured on the plate
@@ -184,7 +184,8 @@ def header_label(txt, size):
     h = Label()
     for part in re.split(r'([ˡⁿᵈʳ]+)', txt):
         if not part: continue
-        if part[0] in 'ˡⁿᵈʳ': h.add(part.translate(str.maketrans('ˡⁿᵈʳ', 'lndr')), SUP_SIZE * size, 'header-sup', rise=SUP_RISE * size)
+        if part == 'ˡ': h.raised('l', SUP_SIZE * size, 'header-sup', SUP_RISE * size, stop=(size, 'header'))      # Amphich(l): with its full stop
+        elif part[0] in 'ˡⁿᵈʳ': h.add(part.translate(str.maketrans('ˡⁿᵈʳ', 'lndr')), SUP_SIZE * size, 'header-sup', rise=SUP_RISE * size)
         else: h.add(part, size, 'header')
     return h
 MIN_GAP = 0.3 * fs
@@ -287,11 +288,11 @@ pitch = (yc[ROWS[-1]] - yc[ROWS[0]]) / (len(ROWS) - 1)
 
 # ---------------------------------------------------------------- page header and footer
 yh = MARGIN_TOP + 0.5 * HEADER; xl, xr = MARGIN_X, PAGE_W - MARGIN_X
-out.append(Label().add('Trans. Roy. Soc. Edin', HS).add('r', SUP_SIZE * HS, 'sup', rise=SUP_RISE * HS).svg(xl, yh))
+out.append(Label().add('Trans. Roy. Soc. Edin', HS).raised('r', SUP_SIZE * HS, 'sup', SUP_RISE * HS, stop=(HS, 'normal')).svg(xl, yh))
 vol = Label().add('Vol. XXXII, Pl. XLIV.', HS); out.append(vol.svg(xr - vol.adv, yh))
 ts = TITLE_SCALE * HS; title = Label().add('THE FIRST SEVEN ORDERS OF KNOTTINESS.', ts, 'title-xliv')
 out.append(title.svg(PAGE_W / 2 - title.adv / 2, yh))
-side = Label().add('Trans. Roy. Soc. Edin', HS).add('r', SUP_SIZE * HS, 'sup', rise=SUP_RISE * HS)
+side = Label().add('Trans. Roy. Soc. Edin', HS).raised('r', SUP_SIZE * HS, 'sup', SUP_RISE * HS, stop=(HS, 'normal'))
 title_clear = min(PAGE_W / 2 - title.adv / 2 - (xl + side.bbox()[2]), (xr - vol.adv + vol.bbox()[0]) - (PAGE_W / 2 + title.adv / 2))
 yf = PAGE_H - MARGIN_BOTTOM - 0.1 * FOOTER
 out.append(Label().add('P. G. Tait del.', FT).svg(xl, yf))
@@ -299,7 +300,9 @@ url = Label().add(URL, URL_SCALE * FT); y_url = (yf + (len(CREDIT) - 1) * CREDIT
 out.append(f'<g opacity="{URL_OPACITY}">{url.svg(PAGE_W / 2 - url.adv / 2, y_url)}</g>')
 for i, line in enumerate(CREDIT):
     cred = Label()
-    for t, sup in line: cred.add(t, SUP_SIZE * FT if sup else FT, 'sup' if sup else 'normal', rise=SUP_RISE * FT if sup else 0)
+    for t, sup in line:
+        if sup: cred.raised(t, SUP_SIZE * FT, 'sup', SUP_RISE * FT, stop=(FT, 'normal'))
+        else: cred.add(t, FT, 'normal')
     out.append(cred.svg(xr - cred.adv, yf + i * CREDIT_LEADING * CAP_EM * FT))
 
 # ---------------------------------------------------------------- spacing report

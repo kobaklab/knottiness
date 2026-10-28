@@ -33,7 +33,7 @@
 8 IV | IV Unique                              | T
 8 V | V Three forms, the 2ⁿᵈ & 3ʳᵈ Amphichˡ   | Y L Am
 8 VI | VI Two forms                           | Ac Av
-8 VII | VII Un. Amph.                         | Ap
+8 VII | VII Un. Amphichˡ                      | Ap
 8 VIII | VIII Two forms                       | At Au
 8 IX | IX Unique                              | Az
 8 X | X Two forms                             | Bb Ax
@@ -43,7 +43,7 @@
 8 XIV | XIV Unique                            | Bq
 8 XV | XV Unique                              | Bv
 8 XVI | XVI Unique                            | Bw
-8 XVII | XVII Un. Amphˡ                       | By
+8 XVII | XVII Un. Amphichˡ                    | By
 8 XVIII | XVIII Unique                        | Bz
 9 I | I Unique                                | B
 9 II | II Six forms                           | J K P Q Y Z

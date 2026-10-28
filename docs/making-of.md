@@ -185,6 +185,8 @@ Layout is proportional: every size is a fraction of the page, so the posters can
 On the plates:
 
 - **Header, left:** Trans. Roy. Soc. Edin<sup>r</sup> is *Transactions of the Royal Society of Edinburgh*, the journal the papers appeared in.
+  The small dot under the raised r is the full stop of the abbreviation, as on the plates; the same goes for Lith<sup>r</sup>, Rest<sup>r</sup> and the
+  group headers' Amphich<sup>l</sup>.
 - **Header, right:** `Vol. XXXII, Pl. LXXX.` is volume 32, plate 80, in Roman numerals. The title stands between them.
 - **Footer, left:** `P. G. Tait del.`, where *del.* is short for *delineavit*, Latin for "drew it": Tait drew the figures.
 - **Footer, right:** F. Huth Lith<sup>r</sup> Edin<sup>r</sup>, meaning F. Huth, lithographer, Edinburgh: the firm that made the lithographic plates
@@ -194,7 +196,7 @@ What we added, in the same style:
 
 - **The years** `MDCCCLXXXV` (1885) on the tenfold poster and `MDCCCLXXXIV` (1884) on the seven-orders poster. The plates print no
   year; we took it from the papers and wrote it in Roman numerals like the plate numbers.
-- **A second credit line,** D. Kobak Rest<sup>r</sup> Gent MMXXVI: *Rest.* for "restorer", Gent (Ghent) as the place, 2026 as the year,
+- **A second credit line,** D. Kobak Rest<sup>r</sup> Ghent MMXXVI: *Rest.* for "restorer", Ghent as the place, 2026 as the year,
   laid out like the lithographer's line above it.
 - **The project's address,** `github.com/kobaklab/knottiness`, centred below the footer in a faint tone.
 

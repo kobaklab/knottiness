@@ -10,6 +10,10 @@ its numeral as printed, the group header as printed ("III Two forms", "I Un. Amp
 form Kirkman's designation (`9 Bg` → `Bg`) and, for the 6- and 7-folds, the designation from Tait's
 former paper (`β 6A`, `II, 7C`). Format in the file's header.
 
+Two headers are not as printed: the plate abbreviates the groups VII and XVII of the 8-folds as "Amph." and "Amphˡ"; they are
+written "Amphichˡ" like the other amphicheiral headers. The posters set a full stop on the baseline under every raised
+letter of an abbreviation (Amphichˡ, Edinʳ, Lithʳ, Restʳ), which the plates show too.
+
 ## partitions_p332.txt (transcribed by Claude)
 
 Tait's §6 (pp. 332–334): for each figure, the corner counts of the meshes (regions) of the two classes
