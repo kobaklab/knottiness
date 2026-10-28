@@ -1,0 +1,127 @@
+# Tait, 'On Knots. Part III', Trans. Roy. Soc. Edinburgh 32 (1885), §21, p. 503.
+# Transcribed by Claude from the page image (sources/s0080456800025242.pdf, p. 503).
+# One line per type: "<type>: <code> <code> ...", forms in plate order.
+# A trailing * marks an amphicheiral, printed as a single barred letter (e.g. C̄ -> C*).
+1: C* G* GC GG CG KC KG G* GK K*
+2: FC GF GF GF
+3: HB LB BC GB BG KB HF FC FG LF GF FK
+4: GE KE GE GE BK GB GB KB BG GB EK EG
+5: FF KB FB BF FF FK
+6: GE LE KE
+7: FE FG FB EB EG EE FE FG FB
+8: FK KF
+9: F* FF F*
+10: GF KF
+11: BF KE BB GF KG GB EF KB BE
+12: LF LF FH
+13: KG K* G*
+14: B* E* G* EB BG EG
+15: A* EA E*
+16: BB FB KB KF FB FF
+17: GF GF
+18: FD DB KD
+19: FA KA FA GA GA EA
+20: BA KA KA AF
+21: GA GA AF BA
+22: FB B* F*
+23: DB FD
+24: EA AA
+25: KG
+26: G*
+27: F*
+28: LK
+29: K*
+30: LG
+31: F*
+32: EF
+33: FE
+34: EF
+35: D*
+36: AD
+37: A*
+38: H*
+39: εs εs εp γp sγ sγ
+40: εm εm εf
+41: εl εe γl γe ηe ηl ζl ζe eζ lζ
+42: ζq γl εl γq εq ζl
+43: εf εm εp εs γf γm γs γp pζ sζ ζm ζf
+44: sε tε
+45: ζd ζh εh εh εd εd hζ dζ
+46: ζl ζl ηl
+47: kγ εk ηk ζk
+48: εh εd εm hβ mβ dβ
+49: ζc ζc ηc γc ζc εc
+50: gγ εg ζg ζg
+51: ζb ζb ζb bε γb
+52: βb εb hβ εh εh εb
+53: εr βr εl εl βl lβ
+54: pε tε
+55: sβ tβ mβ sβ pβ sβ
+56: δf δp δs
+57: nγ γn εn εn
+58: ζr rγ εe γe ζe εr
+59: δl δq
+60: εe eγ lγ εl ζl ζe
+61: εe εl εt tβ eβ lβ
+62: eβ pβ lβ εl εp εe
+63: εk kγ ζk
+64: βl βq sβ
+65: rβ εc εr βc
+66: εb βb εb
+67: dβ mβ βl
+68: dβ βl sβ
+69: εg gγ
+70: δd lδ
+71: βr tβ eβ
+72: lβ rβ
+73: pα tα lα rα
+74: εc rβ rε cβ
+75: εk βk
+76: βc εc
+77: εa εa aβ
+78: bβ hβ
+79: βc εc
+80: rα αc
+81: hα αb
+82: ζu
+83: sε
+84: εt
+85: ζt
+86: ζr
+87: ηs
+88: pζ
+89: εr
+90: ζn
+91: εq
+92: rε
+93: ζs
+94: mζ
+95: rε
+96: εl
+97: lε
+98: εl
+99: εh
+100: βk
+101: bβ
+102: αa
+103: κf θf
+104: κa κa θa
+105: κd κg dθ gθ
+106: κc θc
+107: θd lθ
+108: θb gθ
+109: θl θh
+110: κk
+111: lκ
+112: κh
+113: κg
+114: θk
+115: θf
+116: θe
+117: aθ
+118: λu
+119: λq
+120: λp
+121: λs
+122: λr
+123: λt

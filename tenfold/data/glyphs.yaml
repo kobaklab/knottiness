@@ -1,0 +1,92 @@
+# Hand-made decisions for tracing the annotation glyphs (scripts/trace_glyphs.py).
+# Keys are "<class>/<char>", classes: digits, capitals, italic, upright, greek.
+#
+# instance: index into the list of occurrences (in plate order) to use alone, instead of averaging
+# pick:     how to choose the glyph near that occurrence: nearest (default), left, right, tallest
+# level:    ink level of the outline (default 0.5 for digits, capitals, upright; 0.38 for italic and
+#           Greek, where a lower level keeps the faint hairlines)
+# smooth:   smoothing along the outline, in scan pixels (default 0.7)
+# cuts:     rectangles to erase before tracing, as fractions of the glyph's ink box [x0, y0, x1, y1]
+# speck:    separate parts smaller than this fraction of the largest part are dropped (default 0.04)
+# sharpen:  rebuild crisp corners and straight edges (default: yes for digits, capitals, upright)
+# align:    'top' = the glyph's top at capital height and the rest below the baseline (default: baseline)
+
+digits/1: {instance: 0, pick: left}        # a '1' that is not next to another digit
+digits/2: {instance: 0}                     # the type number 2 itself
+digits/7: {instance: 0}                     # the type number 7 itself
+capitals/M: {instance: 1, pick: tallest}    # M2: the superscript does not touch the letter
+capitals/Q: {instance: 1, pick: tallest, align: top}   # Q2; the tail hangs below the baseline
+capitals/V: {instance: 0, pick: tallest}    # V3: the only V whose superscript stands free
+upright/b: {instance: 0, pick: left}        # the neighbouring g is not part of it
+capitals/Θ: {smooth: 1.1}                   # single, slightly lumpy instance: smooth the ring
+capitals/Ξ: {cuts: [[0.30, 0.66, 0.70, 0.80]]}   # an ink blot joins the middle and bottom bars
+italic/a: {instance: 0}                     # the instance with the full exit stroke (averaging shortens it)
+upright/h: {instance: 0, level: 0.3}        # the other occurrence is smeared; lower level keeps the serif attached
+greek/δ: {instance: 2}                      # clean and typical (an average picked up a stray mark)
+greek/β: {level: 0.48}                      # keeps the bowl of the lower loop open
+
+# ---- hand edits of the finished outlines (applied after tracing; see tait/glyphs.py, edit_glyph).
+# Re-apply without re-tracing: ../scripts/edit_glyphs.py. Coordinates in glyph units of the traced outline.
+digits/5:
+  edit:
+    - {height: 1070, bands: [[-960, -740]]}                  # less tall: shorten the stem only, bowl and flag unchanged
+capitals/A:
+  edit:
+    - {mirror: [-60, -140, 400, 60], axis: 554, fade: [0, 60, 0, 0]}   # left foot slab = mirrored right foot (thicker, on the baseline)
+    - {height: 940, bands: [[-770, -425], [-325, -150]]}      # taller: stretch the strokes, not the serifs or the bar
+capitals/M:
+  edit:
+    # axes: halfway between the two stems at the height of the seam, so the mirrored stem lines up
+    - {mirror: [700, -1200, 1300, -680], axis: 600, fade: [0, 0, 0, 150]}   # top right corner = mirrored top left
+    - {mirror: [780, -280, 1300, 100], axis: 612, fade: [0, 130, 0, 0]}     # bottom right serif = mirrored bottom left
+    - {height: 975}
+capitals/N:
+  edit:
+    - {height: 975}
+capitals/W:
+  edit:
+    # top left serif: X's (thicker, and higher); its stroke lines up with W's first stroke
+    - {copy: capitals/X, dx: -16, dy: 50, box: [-40, -1000, 480, -700], fade: [0, 0, 0, 90]}
+    # last stroke: the heavy wedge and its hook replaced by a thin straight stroke (cut right of its
+    # right edge, then the stroke itself; below the crotch the two strokes merge as before)...
+    - {cut: [[1046, 40], [1500, 40], [1500, -1100], [1299, -1100]]}
+    - {add: [[985, -60], [1058, -25], [1245, -860], [1165, -860]]}
+    # ...with X's top right serif on it
+    - {copy: capitals/X, dx: 531, dy: 50, box: [1040, -1100, 1450, -790], fade: [0, 0, 0, 60]}
+capitals/Y:
+  edit:
+    - {copy: capitals/X, dx: 65, box: [-40, -1060, 495, -740], fade: [0, 0, 0, 90]}    # top left serif: X's
+    - {copy: capitals/X, dx: 98, box: [610, -1100, 1100, -740], fade: [0, 0, 0, 120]}  # top right serif: X's
+capitals/Ξ:
+  edit:
+    # middle bar: E's middle arm with its end serif, at the right end and mirrored at the left end
+    - {copy: capitals/E, dx: 136, dy: -55, box: [546, -735, 856, -325]}
+    - {copy: capitals/E, flip: x, axis: 487, dy: -55, box: [254, -735, 554, -325]}
+    # the trace leaves a stalk joining the middle bar to the bottom bar; cut it off and smooth the bar's top edge
+    - {cut: [[225, -380], [560, -380], [560, -238], [225, -238]]}
+    - {smooth: 25, box: [200, -300, 600, -190], fade: 30}
+capitals/Σ:
+  edit:
+    # bottom bar = the top bar mirrored upside down (thinner, horizontal, serif up); joined to the diagonal
+    - {copy: capitals/Σ, flip: y, axis: -470, fade: 50,
+       region: [[-60, 120], [1100, 120], [1100, -420], [820, -420], [820, -300], [600, -300], [420, -260], [340, -180], [250, -120], [-60, -130]]}
+capitals/Φ:
+  edit:
+    - {copy: capitals/T, dx: 53, box: [180, -200, 790, 70], fade: [0, 70, 0, 0]}   # bottom serif: T's
+    - {height: 1060, bands: [[-1040, -860], [-290, -140]]}                          # less tall: shorter stems
+italic/u:
+  edit:
+    - {thin: 8}                                                                      # strokes as heavy as the other italics
+    - {smooth: 10, box: [540, -560, 700, -380], fade: 20}                           # dent below the top right serif
+    - {height: 740, bands: [[-480, -150]]}
+    - {copy: italic/d, box: [600, -360, 1170, 40], fade: [100, 0, 0, 0]}            # d's exit tail (through the stray speck)
+upright/e:
+  edit:
+    # no horn in the eye: fill the notch below it, cut the horn, round off
+    - {add: [[440, -580], [600, -580], [600, -430], [300, -430], [300, -462], [360, -475], [400, -500], [425, -530], [442, -560]]}
+    - {cut: [[240, -585], [450, -585], [442, -560], [425, -530], [400, -500], [360, -475], [300, -462], [240, -458]]}
+    - {smooth: 12, box: [200, -600, 620, -390], fade: 20}
+    - {copy: upright/c, box: [-40, -360, 720, 40], fade: [0, 60, 0, 0]}            # lower half: c's
+upright/r:
+  edit:
+    - {copy: upright/f, dx: -7, box: [20, -200, 650, 70], fade: [0, 80, 0, 0]}     # bottom serif: f's

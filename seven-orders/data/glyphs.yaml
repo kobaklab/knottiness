@@ -1,0 +1,9 @@
+# Hand-made decisions for tracing the glyphs that Plate XLIV adds to the tenfold set
+# (scripts/trace_glyphs.py); keys and options as in ../tenfold/data/glyphs.yaml:
+# instance (use this occurrence alone), level, smooth, cuts, speck, and `edit:` lists.
+upright/j: {instance: 1}      # its dot is clear; averaging the instances blurs the dot away
+upright/i:
+  edit:
+    # i's own dot is small and faint: replaced by j's dot, centred over the stem (stem centre at mid x-height)
+    # at j's distance above the x-height (328 units from the body's top to the dot's bottom)
+    - {copy: upright/j, dx: -300.5, dy: -23, box: [100, -1400, 480, -1000]}

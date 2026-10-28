@@ -1,0 +1,88 @@
+# Tait, 'On Knots. Part II', Trans. Roy. Soc. Edinburgh 32 (1884), Plate XLIV: the annotations of
+# every figure, in plate (reading) order. Transcribed by Claude from the plate
+# (sources/s0080456800026806.pdf, last page; checked against the HathiTrust and Knot Atlas scans).
+#
+# One line per type (group of forms):  <order> <type> | <header as printed> | <figures>
+#   <type>     the type's numeral as printed above the group (I, II, ...) for the 7-, 8- and 9-folds;
+#              for the 3- to 6-folds, which carry none, its position within the order (1, 2, ...)
+#   <header>   the text above the group's first figure, as printed ('ˡ' = superscript l, as in
+#              'Amphichˡ'; '2ⁿᵈ', '3ʳᵈ' superscripts); empty if none
+#   <figures>  one per form, separated by spaces: Kirkman's designation as printed under the figure
+#              (the letters after the order digit: '9 Bg' -> Bg), and after a '/' the designation
+#              from Tait's former paper (Trans. RSE 28, 1876-7), printed only for the 6- and 7-folds
+#              (Greek letter before, Roman numeral and comma before the order digit: 'β 6A' -> A/β,
+#              'II, 7C' -> C/II)
+# Vertical double bars on the plate separate the orders (row 1: 3|4|5|6|7, row 2: 7|8, row 4: 8|9).
+3 1 |                                         | A
+4 1 | Amphichˡ                                | A
+5 1 |                                         | B
+5 2 |                                         | C
+6 1 | Amphichˡ                                | A/β
+6 2 |                                         | F/γ
+6 3 |                                         | G/δ
+7 I | I Two forms                             | C/II D/IV
+7 II | II Two forms                           | E/V G/III
+7 III | III Two forms                         | L/VII P/VI
+7 IV | IV Unique                              | S/X
+7 V | V Unique                                | T/IX
+7 VI | VI Unique                              | U/VIII
+7 VII | VII Unique                            | V/XI
+8 I | I Un. Amphichˡ                          | B
+8 II | II Three forms                         | E G X
+8 III | III Two forms                         | F Q
+8 IV | IV Unique                              | T
+8 V | V Three forms, the 2ⁿᵈ & 3ʳᵈ Amphichˡ   | Y L Am
+8 VI | VI Two forms                           | Ac Av
+8 VII | VII Un. Amph.                         | Ap
+8 VIII | VIII Two forms                       | At Au
+8 IX | IX Unique                              | Az
+8 X | X Two forms                             | Bb Ax
+8 XI | XI Two forms                           | Bg Bn
+8 XII | XII Un. Amphichˡ                      | Bi
+8 XIII | XIII Unique                          | Bj
+8 XIV | XIV Unique                            | Bq
+8 XV | XV Unique                              | Bv
+8 XVI | XVI Unique                            | Bw
+8 XVII | XVII Un. Amphˡ                       | By
+8 XVIII | XVIII Unique                        | Bz
+9 I | I Unique                                | B
+9 II | II Six forms                           | J K P Q Y Z
+9 III | III Two forms                         | L V
+9 IV | IV Four forms                          | S Af Ar An
+9 V | V Unique                                | X
+9 VI | VI Three forms                         | Ab Aj Aq
+9 VII | VII Two forms                         | Ae Ap
+9 VIII | VIII Six forms                       | As At Au Av Ck Cl
+9 IX | IX Unique                              | Bc
+9 X | X Unique                                | Bk
+9 XI | XI Unique                              | Bl
+9 XII | XII Four forms                        | Bu Dj Al Ak
+9 XIII | XIII Three forms                     | Az Bg Bw
+9 XIV | XIV Four forms                        | Cd Ce Dw Eb
+9 XV | XV Four forms                          | Cf Dk Fj El
+9 XVI | XVI Three forms                       | Cj Ft Gy
+9 XVII | XVII Four forms                      | Dq Ds Dt Du
+9 XVIII | XVIII Three forms                   | Dv Fg Ea
+9 XIX | XIX Two forms                         | Dy Es
+9 XX | XX Three forms                         | Ee Ef Eq
+9 XXI | XXI Four forms                        | Eu Gd Ge Ex
+9 XXII | XXII Four forms                      | Ev Ew Dl Dm
+9 XXIII | XXIII Two forms                     | Ez Fa
+9 XXIV | XXIV Two forms                       | Fc Fn
+9 XXV | XXV Four forms                        | Fi Fk Gk Em
+9 XXVI | XXVI Three forms                     | Gl Hz Ht
+9 XXVII | XXVII Two forms                     | Gp Gq
+9 XXVIII | XXVIII Two forms                   | Gt Gv
+9 XXIX | XXIX Two forms                       | Gx Hi
+9 XXX | XXX Two forms                         | Gz Hh
+9 XXXI | XXXI Two forms                       | Ha Hj
+9 XXXII | XXXII Two forms                     | Hs Ib
+9 XXXIII | XXXIII Two forms                   | Hy Ih
+9 XXXIV | XXXIV Two forms                     | Ia Ii
+9 XXXV | XXXV Unique                          | It
+9 XXXVI | XXXVI Unique                        | Ie
+9 XXXVII | XXXVII Unique                      | Il
+9 XXXVIII | XXXVIII Unique                    | Ip
+9 XXXIX | XXXIX Unique                        | Ir
+9 XL | XL Unique                              | Iq
+9 XLI | XLI Unique                            | Is

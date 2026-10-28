@@ -1,0 +1,16 @@
+__pycache__/
+.venv/
+# per poster (tenfold/, seven-orders/): every tracing attempt, review sheets, label and glyph sheets
+*/traced/candidates/
+*/output/review/
+*/output/labels/
+*/output/glyphs/
+*/output/knots/gap*/
+# poster outputs: only the four paper-tone PDFs are committed (three tenfold, one seven-orders); the white
+# versions, the PNGs and the SVGs are rebuilt on demand (<poster>/scripts/build_poster.py)
+tenfold/output/tenfold_knottiness*_white.*
+tenfold/output/*.png
+tenfold/output/*.svg
+seven-orders/output/seven_orders_knottiness*_white.*
+seven-orders/output/*.png
+seven-orders/output/*.svg
