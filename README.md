@@ -1,6 +1,6 @@
 # Tait's Knottiness
 
-![Tenfold Knottiness: the header and the first two rows of the poster](docs/cover.png)
+![Tenfold Knottiness: the header and the first two rows of the poster, drawn line by line](docs/cover.gif)
 
 Faithful vector reconstructions of P. G. Tait's knot tables as posters: every knot follows Tait's
 original drawing closely but is rendered with proper over/under crossings, together with Tait's
@@ -12,6 +12,8 @@ annotations. Several errors in the annotations of the original *Tenfold* plates 
 | **Tenfold Knottiness**: Plates LXXX and LXXXI of *On Knots. Part III*, Trans. Roy. Soc. Edinburgh 32 (1885); 364 forms of the 123 alternating ten-crossing knots | [`tenfold/`](tenfold/) | [PDF](tenfold/output/tenfold_knottiness.pdf)<br>pages&nbsp;[1](tenfold/output/tenfold_knottiness_page1.pdf),&nbsp;[2](tenfold/output/tenfold_knottiness_page2.pdf) |
 
 The entire code in this repository was written by Claude Opus 5.5 and Sonnet 5.5 under extensive supervision and guidance by Dmitry Kobak.
+
+See the [making-of walkthrough](docs/making-of.md).
 
 ![The First Seven Orders of Knottiness (left) and Tenfold Knottiness (right)](docs/posters.png)
 
@@ -31,9 +33,9 @@ tait/             Python package shared by the posters: segmentation, tracing, v
 scripts/          scripts shared by the posters: trace_rows.py, review_sheets.py (--plate LXXX,
                   LXXXI or XLIV), render_knots.py, edit_glyphs.py, plot_glyphs.py (--poster
                   tenfold|seven-orders, the default when run from inside a poster's directory),
-                  make_readme_images.py (the images of this README)
-docs/             the images of this README (cover.png, posters.png), made from the finished posters by
-                  scripts/make_readme_images.py
+                  make_readme_images.py, make_making_of_images.py and make_cover_gif.py (the images in docs/)
+docs/             the making-of walkthrough with its figures, and the images of this README (cover.gif,
+                  posters.png), made from the finished posters (cover.png and cover_16x9.* are not linked)
 fonts/            the fonts of headers and footers (Roboto Serif subset), with their licences (SIL Open Font
                   License) and README
 pyproject.toml, uv.lock, .python-version   project definition for uv
