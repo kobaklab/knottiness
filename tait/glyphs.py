@@ -29,6 +29,7 @@ from PIL import Image
 from . import TENFOLD
 DATA_DIR, TRACED_DIR = TENFOLD.data, TENFOLD.traced
 from .census import load
+from .codes import letter_style
 from .sources import find_knots, align, SOURCES
 from .render import _ring_to_bezier
 
@@ -40,9 +41,10 @@ UP, LEVEL, MATCH, SMOOTH = 8, 0.38, 0.85, 0.7      # enlargement, ink level, ave
 KH_HT = SOURCES['HT']['knot_h']; SCALE = SOURCES['IA']['knot_h'] / KH_HT
 
 def glyph_class(ch, family):
-    if ch.isupper() or ch in 'ΔΘΞΣΦ': return 'capitals'
+    """the glyph class of a label letter: capitals, greek, or (lowercase Latin) italic / upright"""
+    if ch.isupper(): return 'capitals'
     if ord(ch) > 0x370: return 'greek'
-    return 'italic' if family == '5/7' else 'upright'
+    return letter_style(ch, family)
 
 def _comps(mask, min_px=15):
     lab, _ = ndimage.label(mask, structure=np.ones((3, 3)))
@@ -71,7 +73,9 @@ def collect():
     rows = load(); found = defaultdict(list); occ = defaultdict(list); maps = {}
     for plate in ('LXXX', 'LXXXI'):
         gH, rH = find_knots('HT', plate); gI, rI = find_knots('IA', plate)
-        A, _ = align(rI, rH, KH_HT); Ainv = np.linalg.inv(np.vstack([A, [0, 0, 1]]))[:2]
+        A, _ = align(rI, rH, KH_HT)
+        if A is None: raise SystemExit(f'{plate}: the Internet Archive scan cannot be aligned to the HathiTrust page (fewer than 10 knots in agreeing rows)')
+        Ainv = np.linalg.inv(np.vstack([A, [0, 0, 1]]))[:2]
         textH = _text_mask(gH < 128, KH_HT)
         kI = SOURCES['IA']['knot_h']; textI = _text_mask(gI < ndimage.uniform_filter(gI, 61) - 30, kI)
         maps[plate] = (gI, textI, Ainv, gH)
@@ -116,6 +120,27 @@ def collect():
                 o.update(_isolate(gI, textI, Ainv, o['ht']) or {})
     for key, lst in occ.items():
         found[key] = [o for o in lst if 'crop' in o]
+    return found, occ, maps
+
+COLLECTED_CACHE = TRACED_DIR.parent / 'output' / 'glyphs' / 'collected.pkl'
+
+def load_collected(fresh=False):
+    """collect(), cached in tenfold/output/glyphs/collected.pkl (maps stored as uint8). The cache is not
+    keyed to its inputs, so a cache older than the knot traces or the census is reported: pass fresh=True
+    (trace_glyphs.py --fresh) to collect again from the scans (about 3 minutes)."""
+    import os, pickle, time
+    if COLLECTED_CACHE.exists() and not fresh:
+        newest = max(os.path.getmtime(q) for q in [*TRACED_DIR.glob('[0-9]*.json'), DATA_DIR / 'census.csv'])
+        made = os.path.getmtime(COLLECTED_CACHE)
+        print(f'using the cached glyph instances {COLLECTED_CACHE.name} (made {time.strftime("%Y-%m-%d %H:%M", time.localtime(made))}); '
+              '--fresh collects them again from the scans')
+        if made < newest:
+            print('WARNING: the cache is older than the knot traces or census.csv; if they changed, use --fresh')
+        return pickle.load(open(COLLECTED_CACHE, 'rb'))
+    found, occ, maps = collect()
+    maps = {p: (gI.clip(0, 255).astype(np.uint8), txt, A, gH.clip(0, 255).astype(np.uint8)) for p, (gI, txt, A, gH) in maps.items()}
+    COLLECTED_CACHE.parent.mkdir(parents=True, exist_ok=True)
+    pickle.dump((found, occ, maps), open(COLLECTED_CACHE, 'wb'), protocol=5)
     return found, occ, maps
 
 def _isolate(gI, txt, Ainv, ht, mode='nearest'):
@@ -291,15 +316,6 @@ def smooth_geom(geom, smooth=SMOOTH):
         poly = Polygon(rings[0], rings[1:]).buffer(0)
         out = poly if out is None else unary_union([out, poly])
     return out
-
-def stroke_width(mask):
-    """typical stroke width (in pixels of the mask): a stroke of length L and width w has area L*w and
-    perimeter about 2L, so w = 2 * area / perimeter. (No skeleton needed; skimage's skeletonize
-    crashes on some shapes in the current version.)"""
-    from skimage.measure import perimeter
-    mask = np.pad(np.asarray(mask, bool), 2)
-    per = perimeter(mask)
-    return 2 * float(mask.sum()) / per if per > 0 else 0.0
 
 def geom_stroke_width(geom):
     """the same measure for a shapely geometry: 2 * area / boundary length"""

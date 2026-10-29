@@ -13,7 +13,7 @@ up to mirror image.
 Around every knot Tait put annotations, all hand-lettered:
 
 - top left, the number of the knot's *type* (on the first form of each type only);
-- top right, the knot's name in T. P. Kirkman's list (for example `B`<sup>28</sup>);
+- top right, the knot's name in T. P. Kirkman's list (for example B<sup>28</sup>);
 - at the bottom, two letters that encode the diagram's regions (explained in section 5).
 
 The goal: **redraw every knot as clean vector art that follows Tait's drawing closely, but with proper
@@ -97,7 +97,7 @@ A trace can be wrong without looking wrong, for example with a missed gap or an 
 The third check uses the regions of the diagram. The curve cuts the plane into regions (the loops and gaps between
 strands). Colour them like a checkerboard, so that regions meeting along an edge get different colours. Now count,
 for each region, its corners (crossings on its boundary). In each colour the corner counts add up to 20, and
-Tait's two region letters stand for those two lists of numbers. The second letter is the colour of the outer region.
+Tait's two region letters stand for those two lists of numbers. The second letter is the colour of the outer region, and a trace whose outer region has the other colour is rejected too.
 
 ![Regions, their corner counts and Tait's letters](making-of-3-regions.png)
 
@@ -172,7 +172,7 @@ Layout is proportional: every size is a fraction of the page, so the posters can
 - The 364 knots sit on a grid of 14 rows by 13 columns per plate, read from the positions found in step 4. Rows are justified to
   the plate width, with a thin separator wherever the type changes. All knots share one scale. A knot fills 72 % of its row.
 - The four annotations go at each knot's corners, set in the traced glyphs. Labels share a baseline per row and are pushed outwards
-  until they clear the knot's outline. A check reports any text closer than 0.35 font sizes to anything else (currently none).
+  until they clear the knot's outline. A check reports any text closer than 0.35 font sizes to another label, to a knot other than its own, to a separator or to the footer (currently none).
 - The header and footer are in free fonts close to the originals' lettering, drawn as outlines, so the SVG and PDF need no installed
   fonts. Their text is explained below.
 - Each poster exists on a paper tone and on white, as SVG, PDF and PNG; Tenfold Knottiness is a single A2 sheet or two A3 pages,
@@ -204,7 +204,7 @@ What we added, in the same style:
 
 *The First Seven Orders of Knottiness* (Plate XLIV of *On Knots, Part II*, 1884) reuses all of this. Differences:
 
-- one source scan was enough (the paper's PDF, whose plate page is a clean 300 ppi black-and-white image);
+- one source scan was enough for the knots (the paper's PDF, whose plate page is a clean 300 ppi black-and-white image); a second one, the Internet Archive photo (the only greyscale scan), is used only for the few label letters that the tenfold plates lack (see section 7);
 - the validation is against the *pair of partitions* that Tait prints in the paper's text for each figure, not letters;
 - the layout keeps the arrangement of Tait's plate instead of a regular grid, which is how the tenfold poster is laid out. The
   rows hold 9 to 14 figures, a header ("III Two forms") stands over the first figure of each group, and double bars separate the
@@ -231,4 +231,4 @@ What we added, in the same style:
 - **Reproducibility.** The tracing is deterministic: rerunning it from the scans with the locked environment gives the committed
   traces, and rebuilding the posters from the committed files gives the committed posters.
 
-To run everything, see the order of work in the [main README](../README.md#order-of-work).
+To run everything, see the order of work in the [main README](../README.md#reproducibility).

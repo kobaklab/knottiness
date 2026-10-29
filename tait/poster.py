@@ -6,7 +6,7 @@ All sizes are in mm on the poster. A text of size `size` has capital height CAP_
 and in the traced glyphs (the sizes were first defined for a placeholder font, DejaVu Serif)."""
 import json, re
 import numpy as np
-from . import FONTS_DIR
+from . import FONTS_DIR, layout
 
 INK, PAPER_TONE, WHITE = '#1a1a1a', '#f6f0dc', '#ffffff'
 SUP_SIZE, SUP_RISE = 0.62, 0.42   # superscripts: size and rise, in font sizes
@@ -253,3 +253,40 @@ def write(stem, doc_parts, vx, vw, page_h, px, white_parts=None):
         s.with_suffix('.svg').write_text(doc, encoding='utf-8')
         cairosvg.svg2pdf(bytestring=doc.encode(), write_to=str(s.with_suffix('.pdf')))
         cairosvg.svg2png(bytestring=doc.encode(), write_to=str(s.with_suffix('.png')), output_width=px)
+
+
+# ---------------------------------------------------------------- page header and footer (both posters)
+def page_header(x0, x1, yh, hs, title, title_style, vol):
+    """the header of a page between x0 and x1, on the baseline yh, text size hs: 'Trans. Roy. Soc. Edin^r' at
+    the left, the title centred, `vol` at the right -> ([svg of each], side-text label, title label, vol label)"""
+    side = Label().add('Trans. Roy. Soc. Edin', hs).raised('r', SUP_SIZE * hs, 'sup', SUP_RISE * hs, stop=(hs, 'normal'))
+    t = Label().add(title, layout.TITLE_SCALE * hs, title_style)
+    v = Label().add(vol, hs)
+    return [side.svg(x0, yh), t.svg((x0 + x1) / 2 - t.adv / 2, yh), v.svg(x1 - v.adv, yh)], side, t, v
+
+def credit_lines(year):
+    """the right-hand credit: (text, superscript?) pieces of the lithographer's and the restorer's lines"""
+    return [[('F. Huth Lith', False), ('r', True), (' Edin', False), ('r', True), (f' {year}', False)],
+            [('D. Kobak Rest', False), ('r', True), (' Ghent MMXXVI', False)]]
+
+def page_footer(x0, x1, yf, ft, year):
+    """the footer between x0 and x1, text size ft, first baseline yf: Tait's credit at the left, the project's
+    address centred below, the two credit lines at the right (`year` in Roman numerals, that of the paper)
+    -> [(svg, ink box)]"""
+    from shapely.geometry import box
+    items = []
+    def put(lab, x, y, wrap='{}'):
+        items.append((wrap.format(lab.svg(x, y)), box(*(v + o for v, o in zip(lab.bbox(), (x, y) * 2)))))
+    lines = credit_lines(year)
+    put(Label().add('P. G. Tait del.', ft), x0, yf)
+    url = Label().add(layout.URL, layout.URL_SCALE * ft)
+    # the address: half-way between the last credit line and the page's edge
+    y_url = (yf + (len(lines) - 1) * layout.CREDIT_LEADING * CAP_EM * ft + layout.PAGE_H) / 2 + 0.5 * CAP_EM * ft
+    put(url, (x0 + x1) / 2 - url.adv / 2, y_url, f'<g opacity="{layout.URL_OPACITY}">{{}}</g>')
+    for i, line in enumerate(lines):
+        cred = Label()
+        for t, sup in line:
+            if sup: cred.raised(t, SUP_SIZE * ft, 'sup', SUP_RISE * ft, stop=(ft, 'normal'))
+            else: cred.add(t, ft, 'normal')
+        put(cred, x1 - cred.adv, yf + i * layout.CREDIT_LEADING * CAP_EM * ft)
+    return items

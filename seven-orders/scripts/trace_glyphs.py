@@ -33,6 +33,7 @@ choices = load_choices(P) if (P.data / 'glyphs.yaml').exists() else {}
 REF = 'PDF'
 gI, rI = find_knots('IA', 'XLIV'); _, rR = find_knots(REF, 'XLIV')
 A, match = align(rI, rR, config(REF, 'XLIV')['knot_h'])
+if A is None: raise SystemExit('XLIV: the Internet Archive scan cannot be aligned to the PDF (fewer than 10 knots in agreeing rows)')
 khI = config('IA', 'XLIV')['knot_h']
 cellI = {b: c for row_b, row_c in zip(rI, cells(rI, khI)) for b, c in zip(row_b, row_c)}
 paper = ndimage.uniform_filter(gI, 61)

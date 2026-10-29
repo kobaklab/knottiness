@@ -10,6 +10,7 @@ import numpy as np
 import cairosvg
 from PIL import Image, ImageDraw
 from tait import ROOT, TENFOLD, SEVEN_ORDERS
+from tait.layout import PAGE_H as PAGE_H_MM, PAGE_W as PAGE_W_MM, SHEET_W, Y_GRID, ROW_H
 
 DOCS = ROOT / 'docs'; DOCS.mkdir(exist_ok=True)
 WIDTH = 1500
@@ -22,12 +23,9 @@ def save(im, name):
     print('wrote', (DOCS / name).relative_to(ROOT), im.size)
 
 # ---- cover: page 1 of the tenfold poster, from just above the header to the end of the second row of knots
-PAGE_H_MM, PAGE_W_MM = 420.0, 297.0
 page = render(TENFOLD.output / 'tenfold_knottiness_page1.svg', output_width=WIDTH)
 mm = page.width / PAGE_W_MM                                     # pixels per mm
-# the grid starts below the header band; its rows are (page - margins - header - footer) / 14 high (build_poster.py)
-y_grid = 16.8 - 4.28 + 16.8; row_h = (PAGE_H_MM - 2 * 16.8 - 16.8 - 10.08) / 14
-guess = (y_grid + 2 * row_h) * mm
+guess = (Y_GRID + 2 * ROW_H) * mm                              # the end of the second row (tait/layout.py)
 ink = (np.array(page.convert('L')) < 128).sum(1)              # dark pixels per row of the image
 lo, hi = int(guess - 3 * mm), int(guess + 3 * mm)
 blank = np.flatnonzero(ink[lo:hi] == 0) + lo                    # empty lines between the labels of row 2 and row 3
@@ -41,8 +39,7 @@ save(cover, 'cover.png')
 
 # ---- both posters side by side: same height, a small gap, each on its paper with a thin edge
 GAP = 30
-seven_w, ten_w = 297.0, 594.0                                    # mm, both 420 mm high
-h = round((WIDTH - GAP) / (seven_w + ten_w) * 420)
+h = round((WIDTH - GAP) / (PAGE_W_MM + SHEET_W) * PAGE_H_MM)      # both posters are 420 mm high
 seven = render(SEVEN_ORDERS.output / 'seven_orders_knottiness.svg', output_height=h)
 ten = render(TENFOLD.output / 'tenfold_knottiness.svg', output_height=h)
 canvas = Image.new('RGB', (seven.width + GAP + ten.width, h), 'white')

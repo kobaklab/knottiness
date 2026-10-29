@@ -47,7 +47,7 @@ def plen(pl): return float(np.sum(np.hypot(*np.diff(pl, axis=0).T))) if len(pl) 
 
 class Graph:
     def __init__(self, nodes, edges):
-        self.nodes = dict(nodes); self.edges = dict(edges); self.nid = max(nodes, default=-1) + 1
+        self.nodes = dict(nodes); self.edges = dict(edges)
         self.eid = max(edges, default=-1) + 1
     def deg(self, n): return sum((e['a'] == n) + (e['b'] == n) for e in self.edges.values())
     def inc(self, n): return [k for k, e in self.edges.items() if e['a'] == n or e['b'] == n]

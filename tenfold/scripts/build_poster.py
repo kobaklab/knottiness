@@ -25,9 +25,11 @@ import argparse, re
 from collections import defaultdict
 from shapely.geometry import LineString, box
 from shapely.affinity import affine_transform
-from tait import TENFOLD
-from tait.poster import *
-from tait import poster as tp
+from tait import TENFOLD, poster as tp
+from tait.poster import Label, INK, SUP_SIZE, SUP_RISE
+from tait.codes import letter_style
+from tait.layout import (SHEET_W as PAGE_W, PAGE_H, MARGIN_X, MARGIN_TOP, Y_GRID, MARGIN_BOTTOM, GUTTER, HEADER, FOOTER,
+                         PLATE_W as plate_w, ROWS, ROW_H as row_h, KNOT_FILL, LABEL_SIZE, HEADER_SIZE, FOOTER_SCALE)
 TRACED_DIR, OUTPUT_DIR = TENFOLD.traced, TENFOLD.output
 from tait.census import load
 from tait.render import densify
@@ -47,61 +49,28 @@ for name, default in [('top_rise', 0.05), ('bottom_drop', 0.85), ('label_clear',
                       ('sep_len', 0.55), ('sup_weight', 0.85), ('bold', 1.4)]:
     ap.add_argument('--' + name.replace('_', '-'), type=float, default=default)
 a = ap.parse_args()
-# The layout is made for the whole sheet, A2 landscape; each plate's page is half of it, A3 portrait.
-# Everything is proportional to the sheet, so other sizes are just scaled prints of these files
-# ("Fit to page": the A-series sizes all have the same proportions).
-PAGE_W, PAGE_H = 594, 420
+# The layout (tait/layout.py) is made for the whole sheet, A2 landscape; each plate's page is half of it, A3 portrait.
+# Everything is proportional to the sheet, so other sizes are just scaled prints of these files.
 
-# ---------------------------------------------------------------- layout (fractions of the sheet / row)
-MARGIN_X, MARGIN_Y = 0.028 * PAGE_W, 0.040 * PAGE_H     # outer margins
-# The footer's text hangs down from the top of its band while the header is centred in its band, which left
-# 20.9 mm of white above the title and 12.35 mm below the footer (the address aside). The content is moved
-# up by half the difference, so that both are 16.6 mm.
-MARGIN_TOP, MARGIN_BOTTOM = MARGIN_Y - 4.28, MARGIN_Y + 4.28
-GUTTER = 0.040 * PAGE_W                                   # between the two plates
-HEADER, FOOTER = 0.040 * PAGE_H, 0.024 * PAGE_H           # bands for plate headers / footers
 SEP_WEIGHT = a.sep_weight     # a separator slot is this fraction of a knot slot
-KNOT_FILL = 0.72              # median knot height as a fraction of the row pitch
 SEP_LEN = a.sep_len           # separator length as a fraction of the row pitch
-LABEL_SIZE = 0.150            # label font size as a fraction of the median knot height
 LABEL_CLEAR = a.label_clear   # minimum gap between a label and its knot, in label font sizes
 TOP_RISE, BOTTOM_DROP = a.top_rise, a.bottom_drop   # label baselines rel. to the median knot's top / bottom (font sizes);
                               # chosen for the long descenders of the traced lowercase (β γ ζ η f g p q)
 SUP_WEIGHT = a.sup_weight     # superscript stroke width as a fraction of the full-size glyphs' (scaling
                               # alone would give SUP_SIZE); the plates' superscripts are nearly full weight
 BOLD = a.bold                 # stroke width of the type numbers relative to the other labels (1 = as on the plates)
-HEADER_SIZE = 1.45            # header text size relative to the label size
-TITLE_SCALE = 1.45            # title size relative to the header text
-FOOTER_SCALE = 0.95           # footer text size relative to the header text
-# the project's address, unobtrusive: centred under the gutter on the footer baseline, smaller and grey
-# (the ink at reduced opacity, so it stays neutral on any paper).
-URL, URL_SCALE, URL_OPACITY = 'github.com/kobaklab/knottiness', 1.0, 0.3
-# right-hand credit: (text, superscript?) pieces
-# years in Roman numerals, like the volume and plate numbers (and the Transactions' title pages)
-# Two lines, right-aligned: the first on the footer baseline (level with Tait's credit on the left plate),
-# the second below it, in the bottom margin.
-CREDIT = [[('F. Huth Lith', False), ('r', True), (' Edin', False), ('r', True), (' MDCCCLXXXV', False)],
-          [('D. Kobak Rest', False), ('r', True), (' Ghent MMXXVI', False)]]
-CREDIT_LEADING = 2.1         # baseline-to-baseline distance of the credit lines, in capital heights
-ROWS, COLS = 14, 13
+
 tp.use_glyphs(TRACED_DIR / 'glyphs.json')
 
 
 census = load()
 plates = {p: [r for r in census if r['plate'] == p] for p in ('LXXX', 'LXXXI')}
-plate_w = (PAGE_W - 2 * MARGIN_X - GUTTER) / 2
-row_h = (PAGE_H - 2 * MARGIN_Y - HEADER - FOOTER) / ROWS
 k = KNOT_FILL * row_h / S                                 # mm per working pixel, the same for every knot
 knot_h = S * k                                            # median knot height (mm)
 fs = LABEL_SIZE * knot_h                                  # label font size (mm)
 
 # ---------------------------------------------------------------- text helpers
-def letter_style(ch, family):
-    """as printed: capitals upright; Greek italic; Latin italic in 5/7, upright in 4/8 and 3/9"""
-    if ch.isupper(): return 'normal'
-    if ord(ch) > 0x370: return 'italic'
-    return 'italic' if family == '5/7' else 'normal'
-
 def kirkman_label(lab):
     m = re.match(r'(\D+)(\d*)', lab)
     return (Label(glyphs=True).add(m.group(1), fs)
@@ -129,14 +98,12 @@ def lbox(d):
 for pi, (plate, forms) in enumerate(plates.items()):
     x_plate = MARGIN_X + pi * (plate_w + GUTTER)
     plate_centres.append(x_plate + plate_w / 2)
-    y_grid = MARGIN_TOP + HEADER
+    y_grid = Y_GRID
     group_start = len(out); out.append(f'<g id="plate-{plate}">')
     # ---- header and footer
     hs = HEADER_SIZE * fs; yh = MARGIN_TOP + 0.5 * HEADER
-    out.append(Label().add('Trans. Roy. Soc. Edin', hs).raised('r', SUP_SIZE * hs, 'sup', SUP_RISE * hs, stop=(hs, 'normal')).svg(x_plate, yh))
-    title = Label().add('TENFOLD KNOTTINESS.', TITLE_SCALE * hs, 'title')
-    out.append(title.svg(x_plate + plate_w / 2 - title.adv / 2, yh))
-    vol = Label().add(f'Vol. XXXII, Pl. {plate}.', hs); out.append(vol.svg(x_plate + plate_w - vol.adv, yh))
+    head, _, _, _ = tp.page_header(x_plate, x_plate + plate_w, yh, hs, 'TENFOLD KNOTTINESS.', 'title', f'Vol. XXXII, Pl. {plate}.')
+    out.extend(head)
     # ---- rows
     by_row = defaultdict(list)
     for f in forms: by_row[f['row']].append(f)
@@ -218,26 +185,10 @@ for pi, (plate, forms) in enumerate(plates.items()):
 # credits at the right: across the whole sheet (Tait under the left plate, the credits under the right
 # one, the address under the gutter), and complete under each plate on the separate pages.
 ft = FOOTER_SCALE * HEADER_SIZE * fs; yf = PAGE_H - MARGIN_BOTTOM - 0.1 * FOOTER
-def footer(x0, x1):
-    """footer elements between x0 and x1: [(svg, ink box)]"""
-    items = []
-    def put(lab, x, y, wrap='{}'):
-        items.append((wrap.format(lab.svg(x, y)), box(*(v + o for v, o in zip(lab.bbox(), (x, y) * 2)))))
-    put(Label().add('P. G. Tait del.', ft), x0, yf)
-    url = Label().add(URL, URL_SCALE * ft)
-    # the address: half-way between the last credit line and the page's edge
-    y_url = (yf + (len(CREDIT) - 1) * CREDIT_LEADING * CAP_EM * ft + PAGE_H) / 2 + 0.5 * CAP_EM * ft
-    put(url, (x0 + x1) / 2 - url.adv / 2, y_url, f'<g opacity="{URL_OPACITY}">{{}}</g>')
-    for i, line in enumerate(CREDIT):
-        cred = Label()
-        for t, sup in line:
-            if sup: cred.raised(t, SUP_SIZE * ft, 'sup', SUP_RISE * ft, stop=(ft, 'normal'))
-            else: cred.add(t, ft, 'normal')
-        put(cred, x1 - cred.adv, yf + i * CREDIT_LEADING * CAP_EM * ft)
-    return items
 plate_x = [(c - plate_w / 2, c + plate_w / 2) for c in plate_centres]
-footer_sheet = footer(plate_x[0][0], plate_x[-1][1])
-footer_pages = [footer(x0, x1) for x0, x1 in plate_x]
+YEAR = 'MDCCCLXXXV'                      # 1885 in Roman numerals, like the volume and plate numbers
+footer_sheet = tp.page_footer(plate_x[0][0], plate_x[-1][1], yf, ft, YEAR)
+footer_pages = [tp.page_footer(x0, x1, yf, ft, YEAR) for x0, x1 in plate_x]
 defs = tp.defs()   # the traced glyphs and font outlines, defined once and placed with <use>
 
 # ---------------------------------------------------------------- spacing report

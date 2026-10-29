@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 from . import FONTS_DIR
 from .sources import load_gray, priority, PLATES, S
 from .census import plate_forms
+from .codes import letter_style
 from .render import densify, svg
 
 FONT_DIR = '/usr/share/fonts/truetype/dejavu/'
@@ -26,11 +27,9 @@ def font(style, size):
         except OSError: pass
     return ImageFont.load_default()
 
-def letter_style(ch, family):
-    """as printed: capitals upright; Greek italic; Latin italic in 5/7, upright in 4/8 and 3/9"""
-    if ch.isupper(): return 'roman'
-    if ord(ch) > 0x370: return 'italic'
-    return 'italic' if family == '5/7' else 'roman'
+def _face(ch, family):
+    """font style of a region-code letter for the review sheets: 'italic' as printed, else 'roman'"""
+    return 'italic' if letter_style(ch, family) == 'italic' else 'roman'
 
 def kirkman_parts(k):
     """'B28' -> ('B', '28')"""
@@ -58,13 +57,13 @@ def annotate(im, form, box, scale_px):
     # bottom: region letters (a single barred letter for an amphicheiral)
     code = form['code']; fam = form['family']; yb = y1 + 0.07 * scale_px
     letters = list(code.rstrip('*'))
-    f0 = font(letter_style(letters[0], fam), fs)
+    f0 = font(_face(letters[0], fam), fs)
     d.text((x0, yb), letters[0], font=f0, fill=ink, anchor='ls')
     if code.endswith('*'):
         bb = d.textbbox((x0, yb), letters[0], font=f0, anchor='ls')
         d.line([(bb[0], bb[1] - 0.025 * scale_px), (bb[2], bb[1] - 0.025 * scale_px)], fill=ink, width=max(2, int(fs / 14)))
     else:
-        d.text((x1, yb), letters[1], font=font(letter_style(letters[1], fam), fs), fill=ink, anchor='rs')
+        d.text((x1, yb), letters[1], font=font(_face(letters[1], fam), fs), fill=ink, anchor='rs')
 
 def annotate_xliv(im, form, box, scale_px):
     """Plate XLIV: header above the group's first figure; under the knot the former designation and
@@ -89,8 +88,7 @@ def _cell_image(gray, rec):
         C = densify(rec['curve'], 2.0)
         P = (C / f + np.array(rec['crop_origin']) - [cx0, cy0]) * f
         P = [tuple(p) for p in P]; d.line(P + [P[0]], fill=(220, 30, 30), width=3)
-    tag = 'FAIL: ' + '; '.join(rec['problems'])[:70] if not rec['ok'] else ('warning' if rec.get('warnings') else '')
-    if tag: d.text((6, 6), tag, fill=(220, 0, 0) if not rec['ok'] else (230, 120, 0), font=font('roman', 14))
+    if not rec['ok']: d.text((6, 6), 'FAIL: ' + '; '.join(rec['problems'])[:70], fill=(220, 0, 0), font=font('roman', 14))
     return im
 
 def _rendered_cell(rec, form):

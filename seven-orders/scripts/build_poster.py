@@ -32,7 +32,9 @@ from shapely.geometry import LineString, box
 from shapely.affinity import affine_transform
 from tait import SEVEN_ORDERS as P, TENFOLD
 from tait import poster as tp
-from tait.poster import Label, INK, SUP_SIZE, SUP_RISE, CAP_EM
+from tait.poster import Label, INK, SUP_SIZE, SUP_RISE
+from tait.layout import (PAGE_W, PAGE_H, PLATE_W, MARGIN_TOP, MARGIN_BOTTOM, HEADER, FOOTER, FS_TENFOLD, HEADER_SIZE,
+                         TITLE_SCALE, FOOTER_SCALE)
 from tait.census import load
 from tait.render import densify
 from tait.sources import load_gray, config
@@ -48,37 +50,20 @@ ap.add_argument('--check-only', action='store_true', help='only report spacing, 
 a = ap.parse_args()
 
 # ---------------------------------------------------------------- page: as one page of the tenfold poster
-PAGE_W, PAGE_H = 297, 420                                  # A3 portrait (mm)
-# On the tenfold sheet (A2 landscape, 594 x 420) each plate is (594 - 2 x side margin - gutter) / 2 wide;
-# a single-plate page is half the sheet, centred on its plate, so its side margins are (297 - plate) / 2.
-PLATE_W = (594 - 2 * 0.028 * 594 - 0.040 * 594) / 2         # 268.5 mm
-MARGIN_X, MARGIN_Y = (PAGE_W - PLATE_W) / 2, 0.040 * 420     # as on the tenfold pages: 14.3 mm, 16.8 mm
-# The footer's text hangs down from the top of its band while the header is centred in its band, which left
-# 20.9 mm of white above the title and 12.35 mm below the footer (the address aside). The content is moved
-# up by half the difference, so that both are 16.6 mm.
-MARGIN_TOP, MARGIN_BOTTOM = MARGIN_Y - 4.28, MARGIN_Y + 4.28      # (as on the tenfold pages)
-HEADER, FOOTER = 0.040 * 420, 0.024 * 420
-# text sizes of the tenfold pages: their label size fs = 0.15 x knot height, knot height = 0.72 x row
-# pitch over 14 rows; header 1.45 fs, title 1.45 x header, footer 0.95 x header
-FS_TENFOLD = 0.150 * 0.72 * (420 - 2 * MARGIN_Y - HEADER - FOOTER) / 14
-HS = 1.45 * FS_TENFOLD; FT = 0.95 * HS
-TITLE_SCALE = 1.45            # title size relative to the header text, as on the tenfold poster; the long
-                              # title fits by the plate's own, tighter spacing (style 'title-xliv')
-URL, URL_SCALE, URL_OPACITY = 'github.com/kobaklab/knottiness', 1.0, 0.3
-# right-hand credit, as on the tenfold poster. The plate prints no year (only 'F. Huth, Lith' Edin''); MDCCCLXXXIV
-# is that of the paper (Trans. RSE 32, Part II, read on 2 June 1884).
-CREDIT = [[('F. Huth Lith', False), ('r', True), (' Edin', False), ('r', True), (' MDCCCLXXXIV', False)],
-          [('D. Kobak Rest', False), ('r', True), (' Ghent MMXXVI', False)]]
-CREDIT_LEADING = 2.1
+# The page is a single-plate page of the tenfold poster (tait/layout.py): half the sheet, centred on its plate,
+# so its side margins are (297 - plate) / 2 = 14.3 mm. Header and footer text have the tenfold sizes.
+MARGIN_X = (PAGE_W - PLATE_W) / 2
+HS = HEADER_SIZE * FS_TENFOLD; FT = FOOTER_SCALE * HS
+YEAR = 'MDCCCLXXXIV'          # the plate prints no year (only 'F. Huth, Lith' Edin''); this is that of the paper
+                              # (Trans. RSE 32, Part II, read on 2 June 1884), in Roman numerals
 
 # gaps between the rows and the header / footer bands, as on the tenfold poster: its first row's labels
 # 1.19 mm below the header band, its last row's labels 0.03 mm above the footer band (computed from its
 # layout constants and the labels printed in those rows)
 GAP_TOP, GAP_BOTTOM = 1.19, 0.03
-# the last row (9 figures, centred): the plate's spacing (gaps x LAST_ROW_STRETCH), plus extra room between
+# the last row (9 figures, centred): the plate's spacing, plus extra room between
 # single neighbours: (row, column) -> extra gap after that figure, in label sizes. 9 Ip | 9 Ir: their
 # headers XXXVIII and XXXIX Unique would nearly touch; with 1.4 they are 1.56 label sizes apart, like XXXIX and XL.
-LAST_ROW_STRETCH = 1.0
 EXTRA_GAP = {(4, 6): 0.8, (12, 6): 1.4}
 
 # ---------------------------------------------------------------- plate text, relative to the knot height
@@ -96,7 +81,6 @@ tp.use_glyphs(TENFOLD.traced / 'glyphs.json', P.traced / 'glyphs.json')   # the 
 census = load(P.data / 'census.csv')
 recs = {f['seq']: json.load(open(P.traced / f"{f['seq']:03d}.json")) for f in census}
 REF = recs[1]['ref_source']
-f_ref = recs[1]['scale'] if recs[1]['source'] == REF else None
 kh_ref = config(REF, 'XLIV')['knot_h']
 
 # ---------------------------------------------------------------- the plate's geometry (reference scan px)
@@ -125,7 +109,7 @@ ROW_Y = {r: float(np.median([(geo[f['seq']]['lo'][1] + geo[f['seq']]['hi'][1]) /
 row_of = {f['seq']: f['row'] for f in census}
 # horizontal map per row: reference x -> page x, piecewise linear. Knots keep scale s; the gaps between
 # them are stretched by one factor per row so the row spans the page width (justified); the shorter last
-# row is centred on the page (gaps x LAST_ROW_STRETCH, plus EXTRA_GAP).
+# row is centred on the page (the plate's gaps, plus EXTRA_GAP).
 XMAP = {}
 for r in ROWS:
     ks = sorted((geo[f['seq']]['lo'][0], geo[f['seq']]['hi'][0]) for f in census if f['row'] == r)
@@ -133,7 +117,7 @@ for r in ROWS:
     fs_ = LABEL_SIZE * s * KH                            # the label size (mm), as below
     extra = {c: EXTRA_GAP.get((r, c), 0) * fs_ for c in range(1, len(ks))}   # after the c-th figure
     if r == ROWS[-1]:                                    # the shorter last row: centred
-        stretch = LAST_ROW_STRETCH; x = PAGE_W / 2 - (s * (widths + stretch * gaps) + sum(extra.values())) / 2
+        stretch = 1.0; x = PAGE_W / 2 - (s * (widths + gaps) + sum(extra.values())) / 2
     else:
         stretch = (band_w - s * widths - sum(extra.values())) / (s * gaps); x = MARGIN_X
     xs, ps = [], []
@@ -288,22 +272,11 @@ pitch = (yc[ROWS[-1]] - yc[ROWS[0]]) / (len(ROWS) - 1)
 
 # ---------------------------------------------------------------- page header and footer
 yh = MARGIN_TOP + 0.5 * HEADER; xl, xr = MARGIN_X, PAGE_W - MARGIN_X
-out.append(Label().add('Trans. Roy. Soc. Edin', HS).raised('r', SUP_SIZE * HS, 'sup', SUP_RISE * HS, stop=(HS, 'normal')).svg(xl, yh))
-vol = Label().add('Vol. XXXII, Pl. XLIV.', HS); out.append(vol.svg(xr - vol.adv, yh))
-ts = TITLE_SCALE * HS; title = Label().add('THE FIRST SEVEN ORDERS OF KNOTTINESS.', ts, 'title-xliv')
-out.append(title.svg(PAGE_W / 2 - title.adv / 2, yh))
-side = Label().add('Trans. Roy. Soc. Edin', HS).raised('r', SUP_SIZE * HS, 'sup', SUP_RISE * HS, stop=(HS, 'normal'))
+head, side, title, vol = tp.page_header(xl, xr, yh, HS, 'THE FIRST SEVEN ORDERS OF KNOTTINESS.', 'title-xliv', 'Vol. XXXII, Pl. XLIV.')
+out.extend(head); ts = TITLE_SCALE * HS
 title_clear = min(PAGE_W / 2 - title.adv / 2 - (xl + side.bbox()[2]), (xr - vol.adv + vol.bbox()[0]) - (PAGE_W / 2 + title.adv / 2))
 yf = PAGE_H - MARGIN_BOTTOM - 0.1 * FOOTER
-out.append(Label().add('P. G. Tait del.', FT).svg(xl, yf))
-url = Label().add(URL, URL_SCALE * FT); y_url = (yf + (len(CREDIT) - 1) * CREDIT_LEADING * CAP_EM * FT + PAGE_H) / 2 + 0.5 * CAP_EM * FT   # half-way between the last credit line and the page's edge
-out.append(f'<g opacity="{URL_OPACITY}">{url.svg(PAGE_W / 2 - url.adv / 2, y_url)}</g>')
-for i, line in enumerate(CREDIT):
-    cred = Label()
-    for t, sup in line:
-        if sup: cred.raised(t, SUP_SIZE * FT, 'sup', SUP_RISE * FT, stop=(FT, 'normal'))
-        else: cred.add(t, FT, 'normal')
-    out.append(cred.svg(xr - cred.adv, yf + i * CREDIT_LEADING * CAP_EM * FT))
+out.extend(svg for svg, _ in tp.page_footer(xl, xr, yf, FT, YEAR))
 
 # ---------------------------------------------------------------- spacing report
 problems = []

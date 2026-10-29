@@ -29,15 +29,17 @@ seven-orders/       sources/   original scans and texts (provenance in sources/R
                     traced/    accepted traces (geometry only)
                     output/    generated: rendered knots, review sheets, the poster
 tait/             Python package shared by the posters: segmentation, tracing, validation,
-                  rendering, Tait's lettering (tait.Poster: the directories of a poster)
+                  rendering, Tait's lettering (tait.Poster: the directories of a poster),
+                  the page layout (tait/layout.py)
 scripts/          scripts shared by the posters: trace_rows.py, review_sheets.py (--plate LXXX,
                   LXXXI or XLIV), render_knots.py, edit_glyphs.py, plot_glyphs.py (--poster
                   tenfold|seven-orders, the default when run from inside a poster's directory),
                   make_readme_images.py, make_making_of_images.py and make_cover_gif.py (the images in docs/)
 docs/             the making-of walkthrough with its figures, and the images of this README (cover.gif,
                   posters.png), made from the finished posters (cover.png and cover_16x9.* are not linked)
-fonts/            the fonts of headers and footers (Roboto Serif subset), with their licences (SIL Open Font
-                  License) and README
+fonts/            the fonts of headers and footers (Barlow Semi Condensed, Roboto Serif subset), with their
+                  licences (SIL Open Font License) and README
+tests/            pytest checks of the committed data, renderings and documentation (no scans needed)
 pyproject.toml, uv.lock, .python-version   project definition for uv
 ```
 
@@ -59,6 +61,14 @@ uv run ../scripts/render_knots.py          # shared script; --poster defaults to
 on macOS `brew install cairo`.
 
 To add a dependency: `uv add <package>` (updates `pyproject.toml` and `uv.lock`; commit both).
+
+## Tests
+
+`uv run --with pytest pytest` (about a minute) checks the committed files, so the scans are not needed:
+the census against Tait's totals, the Kirkman labels (numbering, and each letter against the flaps of the
+traced knot), all 508 traces (one strand, the right number of crossings, the outer region in the class
+of the code's second letter), the glyph sets, that the committed knot SVGs are what the renderer produces,
+the page layout, and that the links and anchors of the documentation and the scripts it names exist.
 
 ## Reproducibility
 
@@ -97,8 +107,9 @@ Why in this order:
   `tenfold/traced/glyphs.json`; both `build_poster.py` scripts read that file too. If the tenfold glyphs
   are re-traced, re-run the seven-orders glyph step.
 - Nothing in `tenfold/` depends on `seven-orders/`.
-- `trace_rows.py` writes the knot SVGs at the default line width; `render_knots.py` re-renders them at
-  the poster's width (6.5), so it comes before `build_poster.py`.
+- `trace_rows.py` already writes the knot SVGs in the posters' style (line width 6.5, gaps 1.1);
+  `render_knots.py` is only needed after changing the rendering in `tait/render.py`, and comes before
+  `build_poster.py`.
 
 The accepted traces (`*/traced/`), the glyph sets and all data are committed, so a poster can also be
 rebuilt from a fresh clone without the scans: `render_knots.py` (if the style changed) and

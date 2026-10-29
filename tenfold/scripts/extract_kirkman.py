@@ -1,14 +1,13 @@
 """Contact sheets of Kirkman's designations (top-right labels) for checking census.csv by eye.
 
   uv run scripts/extract_kirkman.py            # sheets + OCR draft for any EMPTY 'kirkman' cells
-  uv run scripts/extract_kirkman.py --force    # re-OCR all (overwrites the transcription!)
 
 output/labels/kirkman_NN.png shows every label as cropped from each scan (HathiTrust | Knot Atlas |
 Internet Archive) next to the value in data/census.csv. The values in census.csv were transcribed
 by Claude from these sheets (not reproducible by script); OCR (tesseract) of the small
 superscripts is too unreliable to use directly. Use the sheets to check the transcription by eye.
 Requires the 'tesseract' binary only when there are empty cells to draft."""
-import argparse, csv, json, subprocess, tempfile
+import csv, json, subprocess, tempfile
 import numpy as np
 from PIL import Image, ImageDraw
 from scipy import ndimage
@@ -17,7 +16,6 @@ from tait.review import font
 DATA_DIR, TRACED_DIR, OUTPUT_DIR = TENFOLD.data, TENFOLD.traced, TENFOLD.output
 from tait.sources import load_gray, ink_mask, SOURCES
 
-ap = argparse.ArgumentParser(); ap.add_argument('--force', action='store_true'); a = ap.parse_args()
 rows = list(csv.DictReader(open(DATA_DIR / 'census.csv', encoding='utf-8')))
 grays = {}
 
@@ -57,7 +55,7 @@ for row in rows:
         if p.exists():
             c = label_crop(json.load(open(p)))
             if c is not None and c.size: crops[seq][src] = c
-    if a.force or (not row['kirkman'] and 'no Kirkman label' not in row['notes']):   # #133 has none printed
+    if not row['kirkman'] and 'no Kirkman label' not in row['notes']:   # #133 has none printed
         best = crops[seq].get('KA' if row['plate'] == 'LXXX' and row['col'] == '1' else 'HT')
         row['kirkman'] = ocr(best) if best is not None else ''
 with open(DATA_DIR / 'census.csv', 'w', encoding='utf-8', newline='') as fh:

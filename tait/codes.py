@@ -41,3 +41,10 @@ def parse(code):
 def partitions(code):
     """unordered pair of sorted partitions, for comparison with a traced diagram"""
     return sorted(tuple(sorted(p, reverse=True)) for p in parse(code)[1])
+
+def letter_style(ch, family):
+    """how a letter of a region code is printed on the plates: 'upright' or 'italic'. Capitals are upright,
+    Greek letters italic, Latin lowercase italic in the 5/7 family and upright in 4/8 and 3/9."""
+    if ch.isupper(): return 'upright'
+    if ord(ch) > 0x370: return 'italic'
+    return 'italic' if family == '5/7' else 'upright'

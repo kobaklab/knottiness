@@ -15,30 +15,13 @@ from PIL import Image, ImageDraw
 from tait import TENFOLD
 from tait.review import font
 TRACED_DIR, OUTPUT_DIR = TENFOLD.traced, TENFOLD.output
-from tait.glyphs import (ORDER, DESCENDERS, SHARPEN, UP, LEVEL, SMOOTH, SCALE, collect, combine, outline,
-                         geom_stroke_width, smooth_geom, to_path, load_choices, _isolate, apply_edits)
+from tait.glyphs import (ORDER, DESCENDERS, SHARPEN, UP, LEVEL, SMOOTH, SCALE, combine, outline,
+                         geom_stroke_width, smooth_geom, to_path, load_choices, _isolate, apply_edits, load_collected)
 
-def _rasterise(geom, shape=None):
-    """shapely geometry (UP x px) -> boolean mask on a canvas fitted to the geometry, with a margin"""
-    from PIL import ImageDraw as _D
-    x0, y0, x1, y1 = geom.bounds; m = 4; ox, oy = x0 - m, y0 - m
-    im = Image.new('1', (int(x1 - x0) + 2 * m + 1, int(y1 - y0) + 2 * m + 1), 0); d = _D.Draw(im)
-    for p in getattr(geom, 'geoms', [geom]):
-        d.polygon([(c[0] - ox, c[1] - oy) for c in p.exterior.coords], fill=1)
-        for r in p.interiors: d.polygon([(c[0] - ox, c[1] - oy) for c in r.coords], fill=0)
-    return np.array(im, bool)
-
-import argparse, pickle
+import argparse
 ap = argparse.ArgumentParser(); ap.add_argument('--fresh', action='store_true'); args = ap.parse_args()
 choices = load_choices()
-CACHE = OUTPUT_DIR / 'glyphs' / 'collected.pkl'; CACHE.parent.mkdir(parents=True, exist_ok=True)
-if CACHE.exists() and not args.fresh:
-    found, occ, maps = pickle.load(open(CACHE, 'rb'))
-else:
-    found, occ, maps = collect()
-    maps = {p: (gI.clip(0, 255).astype(np.uint8), txt, A, gH.clip(0, 255).astype(np.uint8))
-            for p, (gI, txt, A, gH) in maps.items()}
-    pickle.dump((found, occ, maps), open(CACHE, 'wb'), protocol=5)
+found, occ, maps = load_collected(fresh=args.fresh)
 H_CAP = float(np.median([o['box'][1] - o['box'][0] for (cl, c), L in found.items() if cl == 'capitals' for o in L]))
 print(f'median capital height: {H_CAP:.1f} px (Internet Archive scan)')
 

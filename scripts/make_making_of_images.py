@@ -4,8 +4,8 @@
 
 Needs the tenfold scans (tenfold/sources/), the traces and glyphs, and the glyph instances collected from the
 scans (tenfold/output/glyphs/collected.pkl, made by tenfold/scripts/trace_glyphs.py; collected again, about 3 minutes,
-if missing)."""
-import io, json, pickle
+if missing; a cache older than the traces is reported)."""
+import io, json
 import numpy as np
 import cairosvg
 from PIL import Image, ImageDraw
@@ -16,7 +16,7 @@ from shapely.ops import unary_union, polygonize
 from tait import ROOT, TENFOLD
 from tait.census import load
 from tait.codes import partitions
-from tait.glyphs import combine, ink, collect, path_to_geom, load_choices
+from tait.glyphs import combine, ink, load_collected, path_to_geom
 from tait.render import densify, svg
 from tait.review import _cell_image, font
 from tait.sources import load_gray, find_knots, knot_crop
@@ -130,9 +130,7 @@ def fig_rendering(seq=82):
 
 # ------------------------------------------------------------------ 5. glyphs
 def glyph_cache():
-    p = TENFOLD.output / 'glyphs' / 'collected.pkl'
-    if p.exists(): return pickle.load(open(p, 'rb'))[0]
-    return collect()[0]
+    return load_collected()[0]
 
 def path_image(d, top, bottom, h, pad=0.12):
     """a glyph outline (glyph units, y down) as an image of height h, fitted to its ink"""

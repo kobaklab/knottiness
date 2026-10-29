@@ -43,7 +43,7 @@ regions in the two classes of the checkerboard colouring, which every trace is c
   first row as far below the header band as on the tenfold poster (1.19 mm), the last as far above the
   footer band (0.03 mm), equally spaced in between (row pitch 30.0 mm). Group headers and figure labels
   on common lines per row; long headers are set narrower to fit (as on the plate). Spacing check: no
-  text closer than 0.3 label sizes to anything else.
+  text closer than 0.3 label sizes to another text, a bar or another figure (to its own figure: 0.15).
 
 ## Lettering and page details
 
@@ -78,7 +78,7 @@ From inside `seven-orders/` (after `uv sync` at the repository root). This poste
 glyph set, `../tenfold/traced/glyphs.json` (committed): `scripts/trace_glyphs.py` fits its additional
 letters to it and `scripts/build_poster.py` sets the labels in it. To reproduce everything from
 scratch, run `tenfold/` first (through its `scripts/trace_glyphs.py`; see the
-[repository README](../README.md#order-of-work)).
+[repository README](../README.md#reproducibility)).
 
 ```bash
 uv run scripts/build_census.py                               # data/*.txt -> data/census.csv, checked
@@ -92,7 +92,7 @@ uv run ../scripts/review_sheets.py --plate XLIV              # after editing dat
 
 Review sheets (`output/review/XLIV_rowNN.png`, gitignored): each figure's cell from every scan with
 its trace, and the accepted trace rendered with the census annotations and the partition pair.
-`trace_rows.py` writes the knots at the default line width; `render_knots.py` sets the poster's 6.5.
+`trace_rows.py` writes the knots in the poster's style (line width 6.5); `render_knots.py` is only needed after changing the rendering.
 
 ## References
 

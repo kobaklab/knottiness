@@ -54,8 +54,8 @@ under-strand is cut where it passes through the over-strand's band (its width pl
 stroke widths on each side), so gap edges are parallel to the over-strand at any crossing angle.
 A cut never extends past the midpoint to the next crossing along the same strand, which keeps tight
 loops intact even with heavy lines. The outline is written as cubic Bézier curves, fitted within
-0.1 px of the exact shape. Default line width: 6.5 working px (2.1% of the median knot height, close
-to Tait's lines).
+0.1 px of the exact shape. Default line width: 6.5 working px (`DEFAULT_STROKE` in `tait/render.py`; 2.1% of the median knot
+height, close to Tait's lines).
 
 Tracing and styling are independent: `traced/*.json` holds geometry only, so the drawing style
 (line weight, colours) can change without re-tracing.
@@ -67,7 +67,8 @@ This poster's directory in the [knottiness](../README.md) repository. Paths belo
 at the repository root (`../tait/`, `../scripts/`, `../fonts/`).
 
 ```
-sources/    original scans and PDFs, untouched (see sources/README.md for provenance)
+sources/    original scans and PDFs, as downloaded except the two HathiTrust pages, stored as 1-bit PNGs
+            (see sources/README.md for provenance)
 data/       data transcribed by Claude from the 1885 sources: census_p503.txt, census.csv;
             glyphs.yaml: hand-made decisions for tracing the annotation glyphs, and hand edits of
             the finished outlines (`edit:` lists)
@@ -111,7 +112,8 @@ tait/       Python package
   census.py    reading the census
   render.py    crossings, over/under alternation, SVG output
   review.py    review sheets
-  poster.py    typesetting (outline fonts, traced glyphs, labels), glyph <defs>, SVG/PDF/PNG output
+  layout.py    the page layout (A2 sheet, A3 pages, margins, text sizes), shared by the posters
+  poster.py    typesetting (outline fonts, traced glyphs, labels), header and footer, glyph <defs>, SVG/PDF/PNG output
 scripts/    shared by the posters: --poster tenfold (the default when run from inside tenfold/), or
             --plate LXXX / LXXXI
   trace_rows.py     trace rows of a plate from all sources, accept the first valid trace,
@@ -143,10 +145,12 @@ uv run ../scripts/trace_rows.py --plate LXXXI --rows all   # or 1, or 1-3; ~1.5 
 uv run ../scripts/trace_rows.py --plate LXXX --rows all
 # inspect output/review/<plate>_row<NN>.png and output/knots/<seq>.svg
 uv run scripts/trace_glyphs.py                             # annotation glyphs -> traced/glyphs.json
-                                                           #    (uses output/glyphs/collected.pkl if present;
+                                                           #    (uses output/glyphs/collected.pkl if present, and says
+                                                           #    if it is older than the traces;
                                                            #    --fresh: re-collect from the scans, ~3 min)
-uv run ../scripts/render_knots.py                          # knots at line width 6.5 (--stroke), ~12 min;
-                                                           #    trace_rows.py writes them at the default 4.0
+uv run ../scripts/render_knots.py                          # re-render the knots (line width 6.5, --stroke), ~12 min;
+                                                           #    only after changing the rendering: trace_rows.py
+                                                           #    already writes them in this style
 uv run scripts/build_poster.py                             # the sheet, A2 -> output/tenfold_knottiness[_white]
                                                            #    (--white-gap 2.0: wider gaps in the _white files)
                                                            #    .svg/.pdf/.png
@@ -173,7 +177,7 @@ sets its labels in the glyphs traced here: `traced/glyphs.json` is read by
 (the glyph tracing reads `traced/<seq>.json` and `data/census.csv`); `render_knots.py` and
 `build_poster.py` are not. After re-tracing the glyphs (`--fresh`, or changed settings in
 `data/glyphs.yaml`), re-run `../seven-orders/scripts/trace_glyphs.py` as well. See the
-[repository README](../README.md#order-of-work).
+[repository README](../README.md#reproducibility).
 
 What needs the scans: the knot traces and the glyph tracing read the files in `sources/`, which are
 downloaded separately (see `sources/README.md`). Everything after that runs from committed files:
@@ -191,8 +195,8 @@ skipped), so tesseract is optional.
 ## Status
 
 **All 364 forms are traced and validated** (`traced/001.json` … `traced/364.json`). Every accepted
-trace forms one closed strand with exactly 10 crossings, and its region corner counts match Tait's
-code for that form.
+trace forms one closed strand with exactly 10 crossings, its region corner counts match Tait's
+code for that form, and its outer region lies in the class of the code's second letter.
 
 | Plate | accepted | from HathiTrust | from Knot Atlas | from Internet Archive |
 |---|---|---|---|---|
@@ -204,8 +208,8 @@ Google's bitonal processing); Knot Atlas covers almost all of those. Knot #133 (
 only one that only the Internet Archive scan traces.
 
 Per source, the knots that validate on their own: HathiTrust 162 + 179, Knot Atlas 179 + 178,
-Internet Archive 168 + 168 (LXXX + LXXXI). The Internet Archive scan has no usable image for 9 knots
-hidden in the binding gutter. Every knot validates in at least one source.
+Internet Archive 168 + 168 (LXXX + LXXXI). The first column of the Internet Archive scan is hidden
+in the binding gutter, so its 14 knots per plate cannot be reconstructed from it. Every knot validates in at least one source.
 
 Smoothing: traces stay within Tait's printed stroke for ~96% of their length (mean ~1.2 px from the
 line centre, stroke ~6.5 px at working scale); the curves are C²-continuous.
@@ -278,8 +282,9 @@ need no installed fonts.
 `–` on the other forms is omitted), Kirkman label with superscript, and the two region letters
 (italics as printed, a bar for amphicheirals). Labels stand on common baselines per row; each is
 pushed out until it clears its knot, neighbouring labels are de-crowded, and a spacing check
-reports anything closer than 0.35 font sizes (currently nothing; `--check-only` runs just the
-check). All text is positioned from the glyphs' and the fonts' own metrics (renderer-independent).
+reports any label or footer text closer than 0.35 font sizes to another label, to a knot other than
+its own, to a separator or to the footer (a label keeps 0.30 from its own knot, and gives up some of that
+where neighbours crowd; currently nothing is reported; `--check-only` runs just the check). All text is positioned from the glyphs' and the fonts' own metrics (renderer-independent).
 Tait's long descenders (β γ ζ η f g p q) needed the label baselines 0.1 font sizes closer to their
 knots (`--top-rise 0.05`, `--bottom-drop 0.85`). Weights (glyph outlines offset outward):
 superscripts keep 0.85 of the full-size stroke width instead of the 0.62 that plain scaling would

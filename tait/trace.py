@@ -22,8 +22,9 @@ def parse_partitions(p):
 
 def trace(mask, code=None, partitions=None, crossings=10):
     """Trace one knot and validate it: one strand, the expected number of crossings, and the expected
-    corner counts of the two mesh classes: from a Tait region code of the tenfold census (code, which
-    also fixes the class of the outer region), or from a partition pair (partitions, as transcribed)."""
+    corner counts of the two mesh classes: from a Tait region code of the tenfold census (code; the
+    outer region must also lie in the class of the code's second letter, Tait's convention), or from a
+    partition pair (partitions, as transcribed; the plate XLIV gives no rule for the outer region)."""
     report = {}
     G = skeleton_graph(isolate_knot(mask))
     G.prune_spurs(0.05 * S); G.drop_isolated_nodes()
@@ -44,19 +45,19 @@ def trace(mask, code=None, partitions=None, crossings=10):
     D, problems = build_diagram(G, 0.07 * S)
     report['problems'] = problems
     if D is None:
-        report['ok'] = False; report['warnings'] = []; return report, G, None
+        report['ok'] = False; return report, G, None
     report['strands'] = len(D['strands'])
     report['classes'] = D['classes']
     report['outer_class'] = D['outer_class']
-    report['warnings'] = []
     if code is not None:
         report['expected'] = code_partitions(code)
         second = tuple(sorted(parse(code)[1][1], reverse=True))
         report['outer_ok'] = D['outer_class'] == second
-        if not report['outer_ok']: report['warnings'] = ['outer region not in the class of the 2nd letter (Tait\'s convention)']
     else:
         report['expected'] = parse_partitions(partitions)
-    checks = [len(G.nodes) == crossings, len(D['strands']) == 1, D['classes'] == report['expected'], not problems]
+    checks = [len(G.nodes) == crossings, len(D['strands']) == 1, D['classes'] == report['expected'], not problems,
+              report.get('outer_ok', True)]          # tenfold: the outer region is in the class of the 2nd letter
+    if not report.get('outer_ok', True): problems.append("outer region not in the class of the 2nd letter (Tait's convention)")
     if len(G.nodes) != crossings: problems.append(f'{len(G.nodes)} crossings')
     report['ok'] = all(checks)
     if len(D['strands']) != 1: problems.append(f"{len(D['strands'])} strands")

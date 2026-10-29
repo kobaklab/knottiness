@@ -17,6 +17,7 @@ from PIL import Image, ImageDraw
 from shapely.geometry import LineString
 from shapely.ops import unary_union
 from tait import ROOT, TENFOLD
+from tait.layout import Y_GRID as Y_GRID_MM, ROW_H as ROW_MM
 from tait.census import load
 from tait.poster import knot_svg
 from tait.render import densify, knot_shape
@@ -25,7 +26,6 @@ DOCS = ROOT / 'docs'
 SS = 3                                 # supersampling of the drawing
 DRAW_FRAMES, FRAME_MS, HOLD_MS = 72, 40, 2500
 PAPER, INK = (246, 240, 220), (26, 26, 26)
-Y_GRID_MM, ROW_MM = 16.8 - 4.28 + 16.8, (420 - 2 * 16.8 - 16.8 - 10.08) / 14      # the tenfold layout (build_poster.py)
 
 svg_text = (TENFOLD.output / 'tenfold_knottiness_page1.svg').read_text(encoding='utf-8')
 lines = svg_text.split('\n')

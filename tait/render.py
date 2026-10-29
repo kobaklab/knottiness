@@ -6,6 +6,8 @@ gap edges run parallel to the over-strand whatever the crossing angle. No backgr
 patches are used, so the result works on any background."""
 import numpy as np
 
+DEFAULT_STROKE = 6.5      # line width of the rendered knots, in working px (median knot height 314): the posters' width
+
 def self_intersections(C):
     N = len(C); A = C; B = np.roll(C, -1, 0); out = []
     d = B - A
@@ -41,10 +43,11 @@ def _arc_window(C, s, centre, lo, hi):
     return np.stack([np.interp(t % L, s, np.append(C[:, 0], C[0, 0])[:len(s)]),
                      np.interp(t % L, s, np.append(C[:, 1], C[0, 1])[:len(s)])], 1), t
 
-def knot_shape(curve, stroke=4.0, margin=None, reach=None):
+def knot_shape(curve, stroke=DEFAULT_STROKE, margin=None, reach=None):
     """the knot as one filled shapely geometry: the curve's outline, with each under-strand removed
     wherever it passes through the over-strand's band (its width plus `margin` on both sides).
     Gap edges are therefore always parallel to the over-strand, whatever the crossing angle."""
+    import shapely
     from shapely.geometry import LineString, LinearRing
     from shapely.ops import unary_union
     margin = stroke * 1.1 if margin is None else margin
@@ -79,7 +82,7 @@ def knot_shape(curve, stroke=4.0, margin=None, reach=None):
         ub, ua = room(su)                                     # allowed extent of the cut along the under-strand
         ob, oa = room(so)                                     # ... and of the band along the over-strand
         # walk out from the crossing along the under-strand while its stroke still touches the band
-        dist = np.array([Oline.distance(__import__('shapely').geometry.Point(p)) for p in U])
+        dist = shapely.distance(Oline, shapely.points(U))
         c = len(U) // 2; lim = band_r + half
         i0 = c
         while i0 > 0 and dist[i0 - 1] < lim: i0 -= 1
@@ -97,17 +100,6 @@ def knot_shape(curve, stroke=4.0, margin=None, reach=None):
         over_piece = LineString(Ob).buffer(half, cap_style=2, join_style=1)
         cuts.append(under_piece.intersection(band).difference(over_piece))
     return whole.difference(unary_union(cuts))
-
-def _svg_path(geom, ox=0.0, oy=0.0):
-    """shapely (Multi)Polygon -> SVG path data (use fill-rule evenodd)"""
-    geom = geom.simplify(0.05, preserve_topology=True)        # drop redundant points (< 0.05 px)
-    polys = getattr(geom, 'geoms', [geom])
-    out = []
-    for p in polys:
-        for ring in [p.exterior, *p.interiors]:
-            xy = np.asarray(ring.coords)
-            out.append('M' + ' L'.join(f'{x - ox:.1f},{y - oy:.1f}' for x, y in xy) + ' Z')
-    return ' '.join(out)
 
 def _corners(P, min_deg=8.0):
     """indices of the sharp corners of a closed polygon: vertices with a turn of at least min_deg
@@ -188,9 +180,7 @@ def _ring_to_bezier(xy, tol=0.1, ox=0.0, oy=0.0):
     k = 3                                                            # points used for end tangents
     if corners:
         P = np.roll(P, -corners[0], 0); corners = sorted((c - corners[0]) % n for c in corners)
-        stretches = [P[c0:c1 + 1] if c1 > c0 else None for c0, c1 in zip(corners, corners[1:] + [n])]
-        stretches = [np.vstack([P[corners[-1]:], P[:1]]) if s is None else s for s in stretches]
-        stretches[-1] = np.vstack([P[corners[-1]:], P[:1]])
+        stretches = [P[c0:c1 + 1] for c0, c1 in zip(corners, corners[1:])] + [np.vstack([P[corners[-1]:], P[:1]])]
         cubics = []
         for S in stretches:
             if len(S) < 2: continue
@@ -206,7 +196,7 @@ def _ring_to_bezier(xy, tol=0.1, ox=0.0, oy=0.0):
     return ' '.join(out) + ' Z'
 
 
-def svg(C, width_px, height_px, offset=(0, 0), stroke=4.0, gap=None, ink='#1a1a1a', bg='#f6f0dc', with_bg=True):
+def svg(C, width_px, height_px, offset=(0, 0), stroke=DEFAULT_STROKE, gap=None, ink='#1a1a1a', bg='#f6f0dc', with_bg=True):
     """the knot as an SVG: one filled path of cubic Béziers (fitted within 0.1 px of the exact
     outline; sharp corners at the gap cuts kept), gaps cut geometrically (see knot_shape).
     `gap` = margin on each side of an over-strand, in multiples of the stroke width (default 1.1)."""

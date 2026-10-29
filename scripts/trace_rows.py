@@ -6,12 +6,14 @@ Shared by the posters: the plate selects the poster (LXXX, LXXXI: tenfold/; XLIV
   uv run scripts/trace_rows.py --plate XLIV --rows all
 
 Validation: one strand, the census's number of crossings (10 for the tenfold plates, the order for
-XLIV), and the corner counts of the two mesh classes as given by Tait (region code, or partition pair).
+XLIV), and the corner counts of the two mesh classes as given by Tait (region code, or partition pair);
+for the tenfold plates also that the outer region lies in the class of the code's second letter.
+The first source (in the order given by --sources, default: the poster's priority) whose trace validates is accepted.
 
 Writes, in the plate's poster directory,
   traced/candidates/<seq>_<source>.json   every attempt (gitignored)
   traced/<seq>.json                       the accepted trace (committed)
-  output/knots/<seq>.svg                  rendering in the current default style
+  output/knots/<seq>.svg                  rendering in the posters' style (tait.render.DEFAULT_STROKE, gap 1.1)
   output/review/<plate>_row<NN>.png      traces on each source + annotated rendering (see scripts/review_sheets.py)
 and each knot's row and column on the plate in data/census.csv.
 """
@@ -28,8 +30,7 @@ ap.add_argument('--rows', default='1', help="'1', '1-3' or 'all' (1-based)")
 ap.add_argument('--sources', help='comma-separated, in order of preference (default: all, for this plate)')
 a = ap.parse_args()
 P = PLATES[a.plate]; TRACED_DIR, OUTPUT_DIR, DATA_DIR = P.traced, P.output, P.data
-PRIORITY = priority(a.plate)
-sources = [s for s in (a.sources.split(',') if a.sources else PRIORITY) if source_path(s, a.plate).exists()]
+sources = [s for s in (a.sources.split(',') if a.sources else priority(a.plate)) if source_path(s, a.plate).exists()]   # in order of preference
 forms = plate_forms(a.plate)
 
 # --- segment every source; align rows to a reference source that finds exactly all forms ---
@@ -85,11 +86,10 @@ for r in rows_sel:
                 rep, G, C = (trace(mask, f['code']) if 'code' in f else
                              trace(mask, partitions=f['partitions'], crossings=f['order']))
             except Exception as e:
-                rep, C = dict(ok=False, problems=[f'error: {e}'], warnings=[]), None
+                rep, C = dict(ok=False, problems=[f'error: {e}']), None
             expect = dict(code=f['code']) if 'code' in f else dict(order=f['order'], partitions=f['partitions'])
             rec = dict(seq=f['seq'], type=f['type'], form=f['form'], **expect, plate=a.plate,
                        row=r + 1, col=j + 1, source=s, ok=bool(rep['ok']), problems=rep['problems'],
-                       warnings=rep.get('warnings', []),
                        crop_origin=[int(x0), int(y0)], scale=scale, crop_size=[gg.shape[1], gg.shape[0]],
                        box=[int(v) for v in box], cell=list(cellmap[(s, r, j)]),
                        ref_source=ref, ref_box=[int(v) for v in ref_rows[r][j]], ref_cell=list(ref_cells[r][j]))
@@ -108,8 +108,8 @@ for r in rows_sel:
 n_ok = 0
 for seq in sorted(attempts):
     cand = attempts[seq]
-    best = next((s for s in PRIORITY if s in cand and cand[s][0]['ok']), None)
-    status = ' '.join(f"{s}:{'ok' if c[0]['ok'] else 'FAIL'}{'!' if c[0]['ok'] and c[0]['warnings'] else ''}" for s, c in cand.items())
+    best = next((s for s in sources if s in cand and cand[s][0]['ok']), None)
+    status = ' '.join(f"{s}:{'ok' if c[0]['ok'] else 'FAIL'}" for s, c in cand.items())
     rec0 = next(iter(cand.values()))[0]
     what = rec0.get('code') or f"{rec0['order']}: {rec0['partitions']}"
     print(f"  #{seq:3d} type {rec0['type']:3d}.{rec0['form']:<2d} {what:16s} {status:36s} -> {best or 'NEEDS ATTENTION'}")
